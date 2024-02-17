@@ -5,6 +5,10 @@ const port = 3000;
 require('dotenv').config()
 
 const cors = require('cors'); // Import the cors middleware
+//import routes
+const users = require('./routes/api/v1/users');
+
+
 
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_PW);
@@ -19,6 +23,7 @@ db.once('open', function() {
 //json body parser
 app.use(express.json());
 app.use(cors()); // Use the cors middleware
+app.use('/api/v1/users', users);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
