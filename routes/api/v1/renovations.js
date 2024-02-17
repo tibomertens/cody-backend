@@ -9,6 +9,7 @@ const renovationsController = require("../../../controllers/api/v1/renovations")
 
 //add the routes
 router.post("/", renovationsController.create);
+router.get("/", renovationsController.getAll);
 
 //export the router
 module.exports = router;

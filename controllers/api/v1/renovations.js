@@ -47,6 +47,25 @@ const create = async (req, res) => {
   }
 };
 
+//get all renovations
+const getAll = async (req, res) => {
+  try {
+    //get all renovations
+    let renovations = await Renovation.find();
+    res.status(200).json({
+      status: "success",
+      message: "Retrieved all renovations",
+      data: renovations,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   create,
+  getAll,
 };
