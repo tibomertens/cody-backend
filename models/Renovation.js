@@ -8,7 +8,7 @@ const Schema = mongoose.Schema;
 const RenovationSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
-    estimated_cost: { type: Number, required: true },
+    estimated_cost: { type: String, required: true },
     priority: { type: String, required: true },
     grants: { type: String, required: true },
     startup_info: { type: Text, required: true },
