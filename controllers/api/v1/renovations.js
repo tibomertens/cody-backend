@@ -105,10 +105,61 @@ const deleteById = async (req, res) => {
   }
 };
 
+//add update function
+const updateById = async (req, res) => {
+  try {
+    //get the id from the request params
+    let id = req.params.id;
+    //get the title, description, estimated_cost, priority, grants, startup_info from the request body
+    let { title, description, estimated_cost, priority, grants, startup_info } =
+      req.body;
+
+    // Input validation
+    if (
+      !title ||
+      !description ||
+      !estimated_cost ||
+      !priority ||
+      !grants ||
+      !startup_info
+    ) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required fields",
+      });
+    }
+
+    //find the renovation by id and update
+    let renovation = await Renovation.findByIdAndUpdate(
+      id,
+      {
+        title,
+        description,
+        estimated_cost,
+        priority,
+        grants,
+        startup_info,
+      },
+      { new: true }
+    );
+    res.status(200).json({
+      status: "success",
+      message: "Updated renovation",
+      data: renovation,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
 //export the functions
 module.exports = {
   create,
   getAll,
   getById,
   deleteById,
+  updateById,
 };

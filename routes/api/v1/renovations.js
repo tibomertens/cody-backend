@@ -12,6 +12,7 @@ router.post("/", renovationsController.create);
 router.get("/", renovationsController.getAll);
 router.get("/:id", renovationsController.getById);
 router.delete("/:id", renovationsController.deleteById);
+router.put("/:id", renovationsController.updateById);
 
 //export the router
 module.exports = router;
