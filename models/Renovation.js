@@ -10,8 +10,8 @@ const RenovationSchema = new Schema({
     description: { type: String, required: true },
     estimated_cost: { type: String, required: true },
     priority: { type: String, required: true },
-    grants: { type: String, required: true },
-    startup_info: { type: Text, required: true },
+    grants: { type: Array, required: true },
+    startup_info: { type: String, required: true },
     // Add fields for user-specific data
     // user: { type: Schema.Types.ObjectId, ref: 'User' },
     // budget: { type: Number }, 
