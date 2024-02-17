@@ -65,7 +65,29 @@ const getAll = async (req, res) => {
   }
 };
 
+//get a single renovation by id
+const getById = async (req, res) => {
+  try {
+    //get the id from the request params
+    let id = req.params.id;
+    //get the renovation
+    let renovation = await Renovation.findById(id);
+    res.status(200).json({
+      status: "success",
+      message: "Retrieved renovation",
+      data: renovation,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
+//export the functions
 module.exports = {
   create,
   getAll,
+  getById,
 };
