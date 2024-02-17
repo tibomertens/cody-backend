@@ -72,11 +72,19 @@ const getById = async (req, res) => {
     let id = req.params.id;
     //get the renovation
     let renovation = await Renovation.findById(id);
-    res.status(200).json({
-      status: "success",
-      message: "Retrieved renovation",
-      data: renovation,
-    });
+    //if renovation is not found, throw an error renovation not found
+    if (!renovation) {
+      return res.status(404).json({
+        status: "error",
+        message: "Renovation not found",
+      });
+    } else {
+      return res.status(200).json({
+        status: "success",
+        message: "Retrieved renovation",
+        data: renovation,
+      });
+    }
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -92,11 +100,19 @@ const deleteById = async (req, res) => {
     let id = req.params.id;
     //delete the renovation
     let renovation = await Renovation.findByIdAndDelete(id);
-    res.status(200).json({
-      status: "success",
-      message: "Deleted renovation",
-      data: renovation,
-    });
+    //if renovation is not found, throw an error renovation not found
+    if (!renovation) {
+      return res.status(404).json({
+        status: "error",
+        message: "Renovation not found",
+      });
+    } else {
+      return res.status(200).json({
+        status: "success",
+        message: "Deleted renovation",
+        data: renovation,
+      });
+    }
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -142,11 +158,19 @@ const updateById = async (req, res) => {
       },
       { new: true }
     );
-    res.status(200).json({
-      status: "success",
-      message: "Updated renovation",
-      data: renovation,
-    });
+    //if renovation is not found, throw an error renovation not found
+    if (!renovation) {
+      return res.status(404).json({
+        status: "error",
+        message: "Renovation not found",
+      });
+    } else {
+      return res.status(200).json({
+        status: "success",
+        message: "Updated renovation",
+        data: renovation,
+      });
+    }
   } catch (error) {
     res.status(500).json({
       status: "error",
