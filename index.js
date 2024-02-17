@@ -26,6 +26,7 @@ app.use(cors()); // Use the cors middleware
 app.use('/api/v1/users', users);
 app.get('/', users);
 app.delete('/:id', users);
+app.get('/:id', users);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

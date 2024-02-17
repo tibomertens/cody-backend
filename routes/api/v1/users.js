@@ -9,5 +9,6 @@ const createUser = require("../../../controllers/api/v1/users");
 router.post("/", createUser.createUser);
 router.get("/", createUser.getUsers);
 router.delete("/:id", createUser.deleteUser);
+router.get("/:id", createUser.getUserById);
 
 module.exports = router;

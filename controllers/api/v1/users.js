@@ -41,6 +41,24 @@ const getUsers = async (req, res) => {
         data: users
     });
 }
+//get by id
+const getUserById = async (req, res) => {
+    let id = req.params.id;
+    let user = await User.findById(id);
+    if(!user){
+        res.json({
+            status: "failed",
+            message: "user not found",
+            data: null
+        });
+    }else{
+        res.json({
+            status: "success",
+            message: "user retrieved successfully",
+            data: user
+        });
+    }
+}
 //delete user by id
 const deleteUser = async (req, res) => {
     let id = req.params.id;
@@ -64,4 +82,5 @@ const deleteUser = async (req, res) => {
 
 module.exports.createUser = createUser;
 module.exports.getUsers = getUsers;
+module.exports.getUserById = getUserById;
 module.exports.deleteUser = deleteUser;
