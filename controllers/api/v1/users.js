@@ -41,7 +41,27 @@ const getUsers = async (req, res) => {
         data: users
     });
 }
+//delete user by id
+const deleteUser = async (req, res) => {
+    let id = req.params.id;
+    let user = await User.findByIdAndDelete(id);
+    if(!user){ 
+        res.json({
+            status: "failed",
+            message: "user not found",
+            data: null
+        });
+    }else{
+        res.json({
+            status: "success",
+            message: "user deleted successfully",
+            data: user
+        });
+    }
+    
+}
 
 
 module.exports.createUser = createUser;
 module.exports.getUsers = getUsers;
+module.exports.deleteUser = deleteUser;
