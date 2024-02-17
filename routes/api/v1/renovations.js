@@ -11,6 +11,7 @@ const renovationsController = require("../../../controllers/api/v1/renovations")
 router.post("/", renovationsController.create);
 router.get("/", renovationsController.getAll);
 router.get("/:id", renovationsController.getById);
+router.delete("/:id", renovationsController.deleteById);
 
 //export the router
 module.exports = router;

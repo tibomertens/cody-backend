@@ -85,9 +85,30 @@ const getById = async (req, res) => {
   }
 };
 
+//delete a single renovation by id
+const deleteById = async (req, res) => {
+  try {
+    //get the id from the request params
+    let id = req.params.id;
+    //delete the renovation
+    let renovation = await Renovation.findByIdAndDelete(id);
+    res.status(200).json({
+      status: "success",
+      message: "Deleted renovation",
+      data: renovation,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
 //export the functions
 module.exports = {
   create,
   getAll,
   getById,
+  deleteById,
 };
