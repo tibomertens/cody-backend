@@ -32,5 +32,16 @@ const createUser = async (req, res) => {
         }]
     });
 }
+//get users
+const getUsers = async (req, res) => {
+    let users = await User.find();
+    res.json({
+        status: "success",
+        message: "users retrieved successfully",
+        data: users
+    });
+}
+
 
 module.exports.createUser = createUser;
+module.exports.getUsers = getUsers;
