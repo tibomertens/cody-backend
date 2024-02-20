@@ -7,8 +7,8 @@ const PromotorSchema = new Schema({
         type: String, 
         required: true, 
     },
-    phonenumber: { 
-        type: String, 
+    phoneNumber: { 
+        type: Number, 
         required: true, 
     },
     location: { 

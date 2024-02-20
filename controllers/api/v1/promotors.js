@@ -4,12 +4,12 @@ const Promotor = require('../../../models/Promotor');
 const createPromotor = async (req, res) => {
     let p = new Promotor();
     let name = req.body.name;
-    let phonenumber = req.body.phonenumber;
+    let phoneNumber = req.body.phoneNumber;
     let location = req.body.location;
 
     //new promotor
     p.name = name;
-    p.phonenumber = phonenumber;
+    p.phoneNumber = phoneNumber;
     p.location = location;
 
     await p.save();
@@ -18,7 +18,7 @@ const createPromotor = async (req, res) => {
         message: "promotor created successfully",
         data:[{
             name: p.name,
-            phonenumber: p.phonenumber,
+            phoneNumber: p.phoneNumber,
             location: p.location,
         }]
     });
