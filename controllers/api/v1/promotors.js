@@ -51,6 +51,33 @@ const deletePromotorById = async (req, res) => {
     }
 }
 
+//put request
+const updatePromotorById = async (req, res) => {
+    let id = req.params.id;
+    let promotor = await Promotor.findById(id);
+    if(!promotor){
+        res.json({
+            status: "failed",
+            message: "promotor not found",
+            data: null
+        });
+    }else{
+        let name = req.body.name;
+        let phoneNumber = req.body.phoneNumber;
+        let location = req.body.location;
+        promotor.name = name;
+        promotor.phoneNumber = phoneNumber;
+        promotor.location = location;
+        await promotor.save();
+        res.json({
+            status: "success",
+            message: "promotor updated successfully",
+            data: promotor
+        });
+    }
+}
+
 module.exports.createPromotor = createPromotor;
 module.exports.getPromotors = getPromotors;
 module.exports.deletePromotorById = deletePromotorById;
+module.exports.updatePromotorById = updatePromotorById;
