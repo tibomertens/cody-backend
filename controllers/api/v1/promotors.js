@@ -32,6 +32,25 @@ const getPromotors = async (req, res) => {
         data: promotors
     });
 }
+// delete by id
+const deletePromotorById = async (req, res) => {
+    let id = req.params.id;
+    let promotor = await Promotor.findByIdAndDelete(id);
+    if(!promotor){
+        res.json({
+            status: "failed",
+            message: "promotor not found",
+            data: null
+        });
+    }else{
+        res.json({
+            status: "success",
+            message: "promotor deleted successfully",
+            data: promotor
+        });
+    }
+}
 
 module.exports.createPromotor = createPromotor;
 module.exports.getPromotors = getPromotors;
+module.exports.deletePromotorById = deletePromotorById;

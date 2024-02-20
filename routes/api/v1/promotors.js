@@ -8,5 +8,6 @@ const router = express.Router();
 const createPromotor = require("../../../controllers/api/v1/promotors");
 router.post("/", createPromotor.createPromotor);
 router.get("/", createPromotor.getPromotors);
+router.delete("/:id", createPromotor.deletePromotorById);
 
 module.exports = router;
