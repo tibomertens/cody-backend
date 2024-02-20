@@ -23,5 +23,15 @@ const createPromotor = async (req, res) => {
         }]
     });
 }
+//get promotors
+const getPromotors = async (req, res) => {
+    let promotors = await Promotor.find();
+    res.json({
+        status: "success",
+        message: "promotors retrieved successfully",
+        data: promotors
+    });
+}
 
 module.exports.createPromotor = createPromotor;
+module.exports.getPromotors = getPromotors;
