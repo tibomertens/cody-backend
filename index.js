@@ -22,12 +22,14 @@ db.once('open', function() {
 
 //import the routes
 const renovationsRouter = require('./routes/api/v1/renovations');
+const promotorsRouter = require('./routes/api/v1/promotors');
 
 //json body parser
 app.use(express.json());
 app.use(cors()); // Use the cors middleware
 app.use('/api/v1/users', users);
 app.use('/api/v1/renovations', renovationsRouter);
+app.use('/api/v1/promotors', promotorsRouter);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
