@@ -1,5 +1,6 @@
 //user model
 const User = require('../../../models/User');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const salt = 12;
 //create user
@@ -78,9 +79,39 @@ const deleteUser = async (req, res) => {
     }
     
 }
-
+const login = async (req, res) => {
+    let user= await User.findOne({email: req.body.email});
+    if(user){
+        let password = await bcrypt.compare(req.body.password, user.password);
+        if(password){
+            //create JWT token
+            let token = jwt.sign({id: user._id}, process.env.SECRET_KEY);
+            res.json({
+                status: "success",
+                message: "login successful",
+                data: user,
+                token: token
+            });
+        }else{
+            res.json({
+                status: "failed",
+                message: "invalid password",
+                data: null
+            });
+        }
+    }
+    else{
+        res.json({
+            status: "failed",
+            message: "invalid email",
+            data: null
+        });
+    }
+    
+}
 
 module.exports.createUser = createUser;
 module.exports.getUsers = getUsers;
 module.exports.getUserById = getUserById;
 module.exports.deleteUser = deleteUser;
+module.exports.login = login;
