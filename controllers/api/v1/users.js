@@ -32,7 +32,7 @@ const createUser = async (req, res) => {
         await newUser.save();
 
         // Get all renovations from Renovation model
-        const renovations = await Renovation.find({}, '_id'); // Get only the IDs of renovations
+        const renovations = await Renovation.find({}, '_id title'); // Get only the IDs of renovations
 
         // Create default entries in UserRenovation for each renovation
         await Promise.all(
@@ -40,6 +40,7 @@ const createUser = async (req, res) => {
                 await UserRenovation.create({
                     user: newUser._id,
                     renovation: renovation._id,
+                    renovation_title: renovation.title,
                     budget: null,
                     status: 'aanbevolen',
                 });
