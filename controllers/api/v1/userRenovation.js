@@ -33,7 +33,7 @@ const getRecommended = async (req, res) => {
         const userId = req.params.userId; // Get user ID from URL parameter
 
         // Query UserRenovation to get all recommended renovations for the user
-        const recommendedRenovations = await UserRenovation.find({ user: userId, status: 'aanbevolen' })
+        const recommendedRenovations = await UserRenovation.find({ user: userId, status: 'Aanbevolen' })
             .populate('renovation', 'title description estimated_cost priority grants startup_info type') // Populate the 'renovation' field to get renovation details
             .exec();
 
@@ -48,7 +48,70 @@ const getRecommended = async (req, res) => {
     }
 };
 
+const getActive = async (req, res) => {
+    try {
+        const userId = req.params.userId; // Get user ID from URL parameter
+
+        // Query UserRenovation to get all active renovations for the user
+        const activeRenovations = await UserRenovation.find({ user: userId, status: 'Actief' })
+            .populate('renovation', 'title description estimated_cost priority grants startup_info type') // Populate the 'renovation' field to get renovation details
+            .exec();
+
+        // Send the active renovations in the response
+        res.json({
+            message: 'Active renovations found',
+            data: activeRenovations,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const getSaved = async (req, res) => {
+    try {
+        const userId = req.params.userId; // Get user ID from URL parameter
+
+        // Query UserRenovation to get all saved renovations for the user
+        const savedRenovations = await UserRenovation.find({ user: userId, saved: true })
+            .populate('renovation', 'title description estimated_cost priority grants startup_info type') // Populate the 'renovation' field to get renovation details
+            .exec();
+
+        // Send the saved renovations in the response
+        res.json({
+            message: 'Saved renovations found',
+            data: savedRenovations,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const getCompleted = async (req, res) => {
+    try {
+        const userId = req.params.userId; // Get user ID from URL parameter
+
+        // Query UserRenovation to get all completed renovations for the user
+        const completedRenovations = await UserRenovation.find({ user: userId, status: 'Voltooid' })
+            .populate('renovation', 'title description estimated_cost priority grants startup_info type') // Populate the 'renovation' field to get renovation details
+            .exec();
+
+        // Send the completed renovations in the response
+        res.json({
+            message: 'Completed renovations found',
+            data: completedRenovations,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     getUserRenovation,
     getRecommended,
+    getActive,
+    getSaved,
+    getCompleted,
   };
