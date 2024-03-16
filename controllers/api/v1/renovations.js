@@ -4,8 +4,15 @@ const Renovation = require("../../../models/Renovation");
 //create a new renovation
 const create = async (req, res) => {
   //get title, description, estimated_cost, priority, grants, startup_info from the request body
-  let { title, description, estimated_cost, priority, grants, startup_info } =
-    req.body;
+  let {
+    title,
+    description,
+    estimated_cost,
+    priority,
+    grants,
+    startup_info,
+    type,
+  } = req.body;
 
   // Input validation
   if (
@@ -14,7 +21,8 @@ const create = async (req, res) => {
     !estimated_cost ||
     !priority ||
     !grants ||
-    !startup_info
+    !startup_info ||
+    !type
   ) {
     return res.status(400).json({
       status: "error",
@@ -29,6 +37,7 @@ const create = async (req, res) => {
     priority,
     grants,
     startup_info,
+    type,
   });
 
   try {

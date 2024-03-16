@@ -1,9 +1,6 @@
-//require mongoose
-const mongoose = require("mongoose");
-
+// renovation.model.js
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
-// const User = require('./User');
 
 const RenovationSchema = new Schema({
     title: { type: String, required: true },
@@ -12,15 +9,9 @@ const RenovationSchema = new Schema({
     priority: { type: String, required: true },
     grants: { type: Array, required: true },
     startup_info: { type: String, required: true },
-    // Add fields for user-specific data
-    // user: { type: Schema.Types.ObjectId, ref: 'User' },
-    // budget: { type: Number }, 
-    // start_date: { type: Date }, 
-    // status: { type: String, default: "Suggestie" }, 
-    // progress_now: { type: Number }, 
-    // progress_total: { type: Number },
-    // notes: { type: String },
-    // checkList: { type: Array },
+    type: { type: String, required: true },
 });
 
-module.exports = mongoose.model("renovations", RenovationSchema);
+const Renovation = mongoose.model('Renovation', RenovationSchema);
+
+module.exports = Renovation;
