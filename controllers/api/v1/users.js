@@ -1,38 +1,64 @@
 //user model
 const User = require('../../../models/User');
+const UserRenovation = require('../../../models/UserRenovation');
+const Renovation = require('../../../models/Renovation'); 
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const salt = 12;
+
 //create user
 const createUser = async (req, res) => {
-    let u = new User();
-    let username = req.body.username;
-    let password = req.body.password;
-    let email = req.body.email;
-    let admin = req.body.admin;
+    try {
+        const { username, password, email } = req.body;
 
-    //new user
-    u.username = username;
-    u.password = password;
-    u.email = email;
-    u.admin = admin;
+        // Check if the user already exists
+        let existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User with this email already exists' });
+        }
 
-    //hash password
-    u.password = await bcrypt.hash(password, salt);
-   
+        // Create a new user instance
+        const newUser = new User({
+            username,
+            email,
+        });
 
-    await u.save();
-    res.json({
-        status: u.status,
-        message: "user created successfully",
-        data:[{
-            username: u.username,
-            password: u.password,
-            email: u.email,
-            admin: u.admin,
-        }]
-    });
-}
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, salt);
+        newUser.password = hashedPassword;
+
+        // Save the new user
+        await newUser.save();
+
+        // Get all renovations from Renovation model
+        const renovations = await Renovation.find({}, '_id'); // Get only the IDs of renovations
+
+        // Create default entries in UserRenovation for each renovation
+        await Promise.all(
+            renovations.map(async (renovation) => {
+                await UserRenovation.create({
+                    user: newUser._id,
+                    renovation: renovation._id,
+                    budget: null,
+                    status: 'aanbevolen',
+                });
+            })
+        );
+
+        res.json({
+            message: 'User created successfully',
+            data: {
+                username: newUser.username,
+                email: newUser.email,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 //get users
 const getUsers = async (req, res) => {
     let users = await User.find();
@@ -42,6 +68,7 @@ const getUsers = async (req, res) => {
         data: users
     });
 }
+
 //get by id
 const getUserById = async (req, res) => {
     let id = req.params.id;
@@ -60,6 +87,7 @@ const getUserById = async (req, res) => {
         });
     }
 }
+
 //delete user by id
 const deleteUser = async (req, res) => {
     let id = req.params.id;
@@ -79,6 +107,7 @@ const deleteUser = async (req, res) => {
     }
     
 }
+
 const login = async (req, res) => {
     let user= await User.findOne({email: req.body.email});
     if(user){
