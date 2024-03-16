@@ -9,6 +9,7 @@ const userRenovation = require("../../../controllers/api/v1/userRenovation");
 
 //add the routes
 router.get("/users/:userId/renovations/:renovationId", userRenovation.getUserRenovation);
+router.get("/users/:userId/recommended", userRenovation.getRecommended);
 
 //export the router
 module.exports = router;

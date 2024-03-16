@@ -28,6 +28,27 @@ const getUserRenovation = async (req, res) => {
     }
 };
 
+const getRecommended = async (req, res) => {
+    try {
+        const userId = req.params.userId; // Get user ID from URL parameter
+
+        // Query UserRenovation to get all recommended renovations for the user
+        const recommendedRenovations = await UserRenovation.find({ user: userId, status: 'aanbevolen' })
+            .populate('renovation', 'title description estimated_cost priority grants startup_info type') // Populate the 'renovation' field to get renovation details
+            .exec();
+
+        // Send the recommended renovations in the response
+        res.json({
+            message: 'Recommended renovations found',
+            data: recommendedRenovations,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = {
     getUserRenovation,
+    getRecommended,
   };
