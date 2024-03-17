@@ -8,7 +8,8 @@ const create = async (req, res) => {
     title,
     description,
     estimated_cost,
-    priority,
+    cost,
+    impact,
     grants,
     startup_info,
     type,
@@ -19,7 +20,8 @@ const create = async (req, res) => {
     !title ||
     !description ||
     !estimated_cost ||
-    !priority ||
+    !cost ||
+    !impact ||
     !grants ||
     !startup_info ||
     !type
@@ -34,7 +36,8 @@ const create = async (req, res) => {
     title,
     description,
     estimated_cost,
-    priority,
+    cost,
+    impact,
     grants,
     startup_info,
     type,
