@@ -34,13 +34,19 @@ const getRecommended = async (req, res) => {
 
         // Query UserRenovation to get all recommended renovations for the user
         const recommendedRenovations = await UserRenovation.find({ user: userId, status: 'Aanbevolen' })
-            .populate('renovation', 'title description estimated_cost priority grants startup_info type') // Populate the 'renovation' field to get renovation details
+            .populate({
+                path: 'renovation',
+                select: 'title description estimated_cost cost impact grants startup_info type', // Specify the fields you want to include from Renovation model
+            })
             .exec();
+
+        // Extract only the populated renovation data from recommendedRenovations
+        const renovationData = recommendedRenovations.map(item => item.renovation);
 
         // Send the recommended renovations in the response
         res.json({
             message: 'Recommended renovations found',
-            data: recommendedRenovations,
+            data: renovationData,
         });
     } catch (error) {
         console.error(error);
@@ -54,13 +60,19 @@ const getActive = async (req, res) => {
 
         // Query UserRenovation to get all active renovations for the user
         const activeRenovations = await UserRenovation.find({ user: userId, status: 'Actief' })
-            .populate('renovation', 'title description estimated_cost priority grants startup_info type') // Populate the 'renovation' field to get renovation details
+            .populate({
+                path: 'renovation',
+                select: 'title description estimated_cost cost impact grants startup_info type', // Specify the fields you want to include from Renovation model
+            })
             .exec();
+
+        // Extract only the populated renovation data from activeRenovations
+        const renovationData = activeRenovations.map(item => item.renovation);
 
         // Send the active renovations in the response
         res.json({
             message: 'Active renovations found',
-            data: activeRenovations,
+            data: renovationData,
         });
     } catch (error) {
         console.error(error);
@@ -74,13 +86,19 @@ const getSaved = async (req, res) => {
 
         // Query UserRenovation to get all saved renovations for the user
         const savedRenovations = await UserRenovation.find({ user: userId, saved: true })
-            .populate('renovation', 'title description estimated_cost priority grants startup_info type') // Populate the 'renovation' field to get renovation details
+            .populate({
+                path: 'renovation',
+                select: 'title description estimated_cost cost impact grants startup_info type', // Specify the fields you want to include from Renovation model
+            })
             .exec();
+
+        // Extract only the populated renovation data from savedRenovations
+        const renovationData = savedRenovations.map(item => item.renovation);
 
         // Send the saved renovations in the response
         res.json({
             message: 'Saved renovations found',
-            data: savedRenovations,
+            data: renovationData,
         });
     } catch (error) {
         console.error(error);
@@ -94,19 +112,26 @@ const getCompleted = async (req, res) => {
 
         // Query UserRenovation to get all completed renovations for the user
         const completedRenovations = await UserRenovation.find({ user: userId, status: 'Voltooid' })
-            .populate('renovation', 'title description estimated_cost priority grants startup_info type') // Populate the 'renovation' field to get renovation details
+            .populate({
+                path: 'renovation',
+                select: 'title description estimated_cost cost impact grants startup_info type', // Specify the fields you want to include from Renovation model
+            })
             .exec();
+
+        // Extract only the populated renovation data from completedRenovations
+        const renovationData = completedRenovations.map(item => item.renovation);
 
         // Send the completed renovations in the response
         res.json({
             message: 'Completed renovations found',
-            data: completedRenovations,
+            data: renovationData,
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
+
 
 module.exports = {
     getUserRenovation,
