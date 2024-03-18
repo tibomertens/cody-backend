@@ -140,8 +140,43 @@ const login = async (req, res) => {
     
 }
 
+const updateUser = async (req, res) => {
+    let id = req.params.id;
+    try {
+        // Hash the password if it exists in the request body
+        if (req.body.password) {
+            const hashedPassword = await bcrypt.hash(req.body.password, 10);
+            req.body.password = hashedPassword;
+        }
+
+        // Find the user by id and update
+        let user = await User.findByIdAndUpdate(id, req.body, { new: true });
+        
+        if (!user) {
+            return res.json({
+                status: "failed",
+                message: "User not found",
+                data: null
+            });
+        }
+
+        res.json({
+            status: "success",
+            message: "User updated successfully",
+            data: user
+        });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({
+            status: "error",
+            message: "Internal server error"
+        });
+    }
+}
+
 module.exports.createUser = createUser;
 module.exports.getUsers = getUsers;
 module.exports.getUserById = getUserById;
 module.exports.deleteUser = deleteUser;
 module.exports.login = login;
+module.exports.updateUser = updateUser;
