@@ -1,10 +1,16 @@
 //require the renovations model
 const Renovation = require("../../../models/Renovation");
 
+//require the user model
+const User = require("../../../models/User");
+
+//require the userRenovation model
+const UserRenovation = require("../../../models/UserRenovation");
+
 //create a new renovation
 const create = async (req, res) => {
-  //get title, description, estimated_cost, priority, grants, startup_info from the request body
-  let {
+  // Get renovation details from the request body
+  const {
     title,
     description,
     estimated_cost,
@@ -32,26 +38,45 @@ const create = async (req, res) => {
     });
   }
 
-  let renovation = new Renovation({
-    title,
-    description,
-    estimated_cost,
-    cost,
-    impact,
-    grants,
-    startup_info,
-    type,
-  });
-
   try {
-    //save the renovation
-    let savedRenovation = await renovation.save();
+    // Create the renovation
+    const newRenovation = new Renovation({
+      title,
+      description,
+      estimated_cost,
+      cost,
+      impact,
+      grants,
+      startup_info,
+      type,
+    });
+
+    // Save the renovation
+    const savedRenovation = await newRenovation.save();
+
+    // Get all users
+    const users = await User.find({}, '_id');
+
+    // Create UserRenovation records for each user and the new renovation
+    await Promise.all(
+      users.map(async (user) => {
+        await UserRenovation.create({
+          user: user._id,
+          renovation: savedRenovation._id,
+          renovation_title: savedRenovation.title,
+          budget: null,
+          status: 'aanbevolen',
+        });
+      })
+    );
+
     res.status(201).json({
       status: "success",
       message: "Renovation created",
       data: savedRenovation,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       status: "error",
       message: "Internal server error",
