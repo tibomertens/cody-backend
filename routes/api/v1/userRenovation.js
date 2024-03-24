@@ -13,6 +13,7 @@ router.get("/users/:userId/recommended", userRenovation.getRecommended);
 router.get("/users/:userId/active", userRenovation.getActive);
 router.get("/users/:userId/saved", userRenovation.getSaved);
 router.get("/users/:userId/completed", userRenovation.getCompleted);
+router.patch("/users/:userId/renovations/:renovationTitle", userRenovation.updateRecommendations);
 
 //export the router
 module.exports = router;

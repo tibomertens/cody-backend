@@ -132,6 +132,33 @@ const getCompleted = async (req, res) => {
     }
 };
 
+const updateRecommendations = async (req, res) => {
+    try {
+        const userId = req.params.userId; // Get user ID from URL parameter
+        const renovationTitle = req.params.renovationTitle; // Get renovation ID from URL parameter
+        const status = req.body.status; // Get the status from the request body
+
+        // Find the user-specific data for the renovation
+        const userRenovation = await UserRenovation.findOne({ user: userId, renovation_title: renovationTitle });
+
+        if (!userRenovation) {
+            return res.status(404).json({ message: 'User-specific data not found for the user and renovation.' });
+        }
+
+        // Update the status of the user-specific data
+        userRenovation.status = status;
+        await userRenovation.save();
+
+        // Send the updated user-specific data in the response
+        res.json({
+            message: 'User-specific recommendations updated successfully',
+            data: userRenovation,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
 
 module.exports = {
     getUserRenovation,
@@ -139,4 +166,5 @@ module.exports = {
     getActive,
     getSaved,
     getCompleted,
+    updateRecommendations,
   };
