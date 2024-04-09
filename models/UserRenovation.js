@@ -9,12 +9,12 @@ const UserRenovationSchema = new Schema({
     budget: { type: Number, default: 0 },
     status: { type: String, default: 'Aanbevolen' },
     saved: { type: Boolean, default: false },
-    startDate: { type: Date, required: false },
-    endDate: { type: Date, required: false },
-    amount_total: { type: Number, required: false },
-    amount_done: { type: Number, required: false },
-    notes: { type: String, required: false },
-    checklist: { type: Array, required: false },
+    startDate: { type: Date, required: false, default: null },
+    endDate: { type: Date, required: false, default: null },
+    amount_total: { type: Number, required: false, default: null },
+    amount_done: { type: Number, required: false, default: null },
+    notes: { type: String, required: false, default: null },
+    checklist: { type: Array, required: false, default: null },
 });
 
 const UserRenovation = mongoose.model('UserRenovation', UserRenovationSchema);

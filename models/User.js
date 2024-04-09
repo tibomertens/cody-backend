@@ -6,10 +6,10 @@ const UserSchema = new Schema({
   username: { type: String, required: true },
   password: { type: String, required: true },
   email: { type: String, required: true },
-  indicatiefLabel: { type: String, required: false },
+  label: { type: String, required: false },
   goalLabel: { type: String, required: false },
   goalLabel_by_year: { type: Number, required: false },
-  budget: { type: String, required: false },
+  budget: { type: String, required: false, default: 0 },
 });
 
 const User = mongoose.model("User", UserSchema);
