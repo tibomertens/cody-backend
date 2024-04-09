@@ -9,6 +9,7 @@ const UserSchema = new Schema({
   indicatiefLabel: { type: String, required: false },
   goalLabel: { type: String, required: false },
   goalLabel_by_year: { type: Number, required: false },
+  budget: { type: String, required: false },
 });
 
 const User = mongoose.model("User", UserSchema);
