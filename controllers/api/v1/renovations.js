@@ -65,7 +65,7 @@ const create = async (req, res) => {
           renovation: savedRenovation._id,
           renovation_title: savedRenovation.title,
           budget: null,
-          status: 'aanbevolen',
+          status: 'Aanbevolen',
         });
       })
     );

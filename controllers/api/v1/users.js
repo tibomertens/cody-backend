@@ -44,7 +44,7 @@ const createUser = async (req, res) => {
           renovation: renovation._id,
           renovation_title: renovation.title,
           budget: null,
-          status: "aanbevolen",
+          status: "Aanbevolen",
         });
       })
     );
