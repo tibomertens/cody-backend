@@ -21,7 +21,7 @@ const PromotorSchema = new Schema({
     },
     rating: { 
         type: String, 
-        required: true, 
+        required: false, 
     },
     logo: { 
         type: String, 
