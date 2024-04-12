@@ -13,7 +13,23 @@ const PromotorSchema = new Schema({
     },
     location: { 
         type: String, 
+        required: false, 
+    },
+    address: { 
+        type: String, 
+        required: false, 
+    },
+    rating: { 
+        type: String, 
         required: true, 
+    },
+    logo: { 
+        type: String, 
+        required: false, 
+    },
+    website_url: { 
+        type: String, 
+        required: false, 
     },
 });
 
