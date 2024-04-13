@@ -9,7 +9,7 @@ const getUserRenovation = async (req, res) => {
 
         // Query UserRenovation to get specific data for the user and renovation
         const userRenovation = await UserRenovation.findOne({ user: userId, renovation: renovationId })
-            .populate('user', 'username email') // Populate the 'user' field to get user details
+            .populate('user', 'username email budget') // Populate the 'user' field to get user details
             .populate('renovation', 'title description estimated_cost priority grants startup_info type impact') // Populate the 'renovation' field to get renovation details
             .exec();
 
@@ -160,6 +160,37 @@ const updateRecommendations = async (req, res) => {
     }
 };
 
+const updateState = async (req, res) => {
+    try {
+        const userId = req.params.userId; // Get user ID from URL parameter
+        const renovationId = req.params.renovationId; // Get renovation ID from URL parameter
+        const { status, budget, amount_total, startDate } = req.body;
+
+        // Find the user-specific data for the renovation
+        const userRenovation = await UserRenovation.findOne({ user: userId, renovation: renovationId });
+
+        if (!userRenovation) {
+            return res.status(404).json({ message: 'User-specific data not found for the user and renovation.' });
+        }
+
+        // Update the items of the user-specific data
+        userRenovation.status = status;
+        userRenovation.budget = budget;
+        userRenovation.amount_total = amount_total;
+        userRenovation.startDate = startDate;
+        await userRenovation.save();
+
+        // Send the updated user-specific data in the response
+        res.json({
+            message: 'User-specific data updated successfully',
+            data: userRenovation,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = {
     getUserRenovation,
     getRecommended,
@@ -167,4 +198,5 @@ module.exports = {
     getSaved,
     getCompleted,
     updateRecommendations,
+    updateState,
   };
