@@ -55,7 +55,7 @@ const create = async (req, res) => {
     const savedRenovation = await newRenovation.save();
 
     // Get all users
-    const users = await User.find({}, '_id');
+    const users = await User.find({}, "_id");
 
     // Create UserRenovation records for each user and the new renovation
     await Promise.all(
@@ -65,7 +65,7 @@ const create = async (req, res) => {
           renovation: savedRenovation._id,
           renovation_title: savedRenovation.title,
           budget: null,
-          status: 'Aanbevolen',
+          status: "Aanbevolen",
         });
       })
     );
@@ -216,6 +216,37 @@ const updateById = async (req, res) => {
   }
 };
 
+const getByType = async (req, res) => {
+  try {
+    // Get the type from the request params
+    let type = req.params.type;
+
+    // Get all renovations of the specified type
+    let renovations = await Renovation.find({ type: type });
+
+    // If no renovations are found, return a 404 error
+    if (!renovations || renovations.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "Renovations not found for the specified type",
+      });
+    } else {
+      // If renovations are found, return them
+      return res.status(200).json({
+        status: "success",
+        message: "Retrieved renovations",
+        data: renovations,
+      });
+    }
+  } catch (error) {
+    // If there's any error, return a 500 error
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
 //export the functions
 module.exports = {
   create,
@@ -223,4 +254,5 @@ module.exports = {
   getById,
   deleteById,
   updateById,
+  getByType,
 };

@@ -13,6 +13,7 @@ router.get("/", renovationsController.getAll);
 router.get("/:id", renovationsController.getById);
 router.delete("/:id", renovationsController.deleteById);
 router.put("/:id", renovationsController.updateById);
+router.get("/type/:type", renovationsController.getByType);
 
 //export the router
 module.exports = router;
