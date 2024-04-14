@@ -213,7 +213,7 @@ const updateState = async (req, res) => {
     userRenovation.status = status;
     userRenovation.budget = budget;
     userRenovation.amount_total = amount_total;
-    
+
     if (status === "Actief") {
       userRenovation.startDate = startDate;
     } else if (status === "Voltooid") {
@@ -300,6 +300,39 @@ const updateUserData = async (req, res) => {
   }
 };
 
+const updateSaved = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get user ID from URL parameter
+    const renovationId = req.params.renovationId; // Get renovation ID from URL parameter
+    const saved = req.body.saved; // Get the saved status from the request body
+
+    // Find the user-specific data for the renovation
+    const userRenovation = await UserRenovation.findOne({
+      user: userId,
+      renovation: renovationId,
+    });
+
+    if (!userRenovation) {
+      return res.status(404).json({
+        message: "User-specific data not found for the user and renovation.",
+      });
+    }
+
+    // Update the saved status of the user-specific data
+    userRenovation.saved = saved;
+    await userRenovation.save();
+
+    // Send the updated user-specific data in the response
+    res.json({
+      message: "User-specific data updated successfully",
+      data: userRenovation,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getUserRenovation,
   getRecommended,
@@ -310,4 +343,5 @@ module.exports = {
   updateState,
   updateAmount,
   updateUserData,
+  updateSaved,
 };

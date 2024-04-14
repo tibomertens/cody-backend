@@ -17,6 +17,7 @@ router.patch("/users/:userId/renovations/:renovationTitle", userRenovation.updat
 router.patch("/users/:userId/renovations/:renovationId/updateState", userRenovation.updateState);
 router.patch("/users/:userId/renovations/:renovationId/updateAmount", userRenovation.updateAmount);
 router.patch("/users/:userId/renovations/:renovationId/updateUserData", userRenovation.updateUserData);
+router.patch("/users/:userId/renovations/:renovationId/updateSaved", userRenovation.updateSaved);
 
 //export the router
 module.exports = router;
