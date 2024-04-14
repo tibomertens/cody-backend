@@ -16,6 +16,7 @@ router.get("/users/:userId/completed", userRenovation.getCompleted);
 router.patch("/users/:userId/renovations/:renovationTitle", userRenovation.updateRecommendations);
 router.patch("/users/:userId/renovations/:renovationId/updateState", userRenovation.updateState);
 router.patch("/users/:userId/renovations/:renovationId/updateAmount", userRenovation.updateAmount);
+router.patch("/users/:userId/renovations/:renovationId/updateUserData", userRenovation.updateUserData);
 
 //export the router
 module.exports = router;
