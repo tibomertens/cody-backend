@@ -10,7 +10,7 @@ const getUserRenovation = async (req, res) => {
         // Query UserRenovation to get specific data for the user and renovation
         const userRenovation = await UserRenovation.findOne({ user: userId, renovation: renovationId })
             .populate('user', 'username email budget') // Populate the 'user' field to get user details
-            .populate('renovation', 'title description estimated_cost priority grants startup_info type impact') // Populate the 'renovation' field to get renovation details
+            .populate('renovation', 'title description estimated_cost priority grants startup_info type impact startDate endDate budget amount_total amount_done notes checklist') // Populate the 'renovation' field to get renovation details
             .exec();
 
         if (!userRenovation) {
