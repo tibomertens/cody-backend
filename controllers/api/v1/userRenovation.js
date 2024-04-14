@@ -366,6 +366,39 @@ const updateNotes = async (req, res) => {
   }
 };
 
+const updateChecklist = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get user ID from URL parameter
+    const renovationId = req.params.renovationId; // Get renovation ID from URL parameter
+    const checklist = req.body.checklist; // Get the checklist from the request body
+
+    // Find the user-specific data for the renovation
+    const userRenovation = await UserRenovation.findOne({
+      user: userId,
+      renovation: renovationId,
+    });
+
+    if (!userRenovation) {
+      return res.status(404).json({
+        message: "User-specific data not found for the user and renovation.",
+      });
+    }
+
+    // Update the checklist of the user-specific data
+    userRenovation.checklist = checklist;
+    await userRenovation.save();
+
+    // Send the updated user-specific data in the response
+    res.json({
+      message: "User-specific data updated successfully",
+      data: userRenovation,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getUserRenovation,
   getRecommended,
@@ -378,4 +411,5 @@ module.exports = {
   updateUserData,
   updateSaved,
   updateNotes,
+  updateChecklist,
 };
