@@ -13,7 +13,7 @@ const PromotorSchema = new Schema({
     },
     location: { 
         type: String, 
-        required: false, 
+        required: true, 
     },
     address: { 
         type: String, 
