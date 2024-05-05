@@ -47,7 +47,26 @@ const getAll = async (req, res) => {
   }
 };
 
+const getByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const tasks = await Task.find({ user: userId });
+
+    return res.status(200).json({
+      success: true,
+      data: tasks,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   create,
   getAll,
+  getByUserId,
 };
