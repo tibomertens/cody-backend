@@ -173,9 +173,49 @@ const updateUser = async (req, res) => {
   }
 };
 
+updateBudget =async (req, res) => {
+  try {
+    const userId = req.params.id; // Get user ID from URL parameter
+    const budget = req.body.budget_current;
+
+    // Find the user-specific data for the renovation
+    let userBudget = await User.findOne({ _id: userId })
+  .exec();
+
+if (!userBudget) {
+  return res.status(404).json({
+    message: "User-specific data not found for the user",
+  });
+}
+
+// Calculate new budget values
+if (userBudget.budget === null) {
+  userBudget.budget = 0;
+}
+const newBudgetCurrent = userBudget.budget_current + budget;
+
+
+// Update user document
+userBudget.budget_current = parseInt(newBudgetCurrent);
+
+await userBudget.save();
+
+// Send the updated user-specific data in the response
+res.json({
+  message: "User-specific data updated successfully",
+  data: userBudget,
+});
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports.createUser = createUser;
 module.exports.getUsers = getUsers;
 module.exports.getUserById = getUserById;
 module.exports.deleteUser = deleteUser;
 module.exports.login = login;
 module.exports.updateUser = updateUser;
+module.exports.updateBudget = updateBudget;
