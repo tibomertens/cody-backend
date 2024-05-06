@@ -65,8 +65,58 @@ const getByUserId = async (req, res) => {
   }
 };
 
+const update = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { title, description, date } = req.body;
+
+    if (!title || !description || !date) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { title, description, date },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: updatedTask,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const remove = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+
+    await Task.findByIdAndDelete(taskId);
+
+    return res.status(204).json({
+      success: true,
+      data: null,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   create,
   getAll,
   getByUserId,
+  update,
+  remove
 };

@@ -10,5 +10,7 @@ const taskscontroller = require("../../../controllers/api/v1/tasks");
 router.post("/", taskscontroller.create);
 router.get("/", taskscontroller.getAll);
 router.get("/:userId", taskscontroller.getByUserId);
+router.put("/:taskId", taskscontroller.update);
+router.delete("/:taskId", taskscontroller.remove);
 
 module.exports = router;
