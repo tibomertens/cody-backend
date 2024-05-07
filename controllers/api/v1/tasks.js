@@ -2,9 +2,9 @@ const Task = require("../../../models/Task");
 
 const create = async (req, res) => {
   try {
-    const { title, description, user } = req.body;
+    const { title, description, user, date } = req.body;
 
-    if (!title || !description) {
+    if (!title || !description || !date) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields",
@@ -15,6 +15,7 @@ const create = async (req, res) => {
       user,
       title,
       description,
+      date
     });
 
     const savedTask = await newTask.save();
@@ -26,7 +27,7 @@ const create = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+      error: error.message,
     });
   }
 };
