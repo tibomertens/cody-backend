@@ -196,7 +196,7 @@ const updateState = async (req, res) => {
   try {
     const userId = req.params.userId; // Get user ID from URL parameter
     const renovationId = req.params.renovationId; // Get renovation ID from URL parameter
-    const { status, budget, amount_total, startDate, endDate } = req.body;
+    const { status, budget, amount_done, amount_total, startDate, endDate } = req.body;
 
     // Find the user-specific data for the renovation
     let userRenovation = await UserRenovation.findOne({
@@ -229,6 +229,7 @@ const updateState = async (req, res) => {
     userRenovation.status = status;
     userRenovation.budget = budget;
     userRenovation.amount_total = amount_total;
+    userRenovation.amount_done = amount_done;
 
     if (status === "Actief") {
       userRenovation.startDate = startDate;
