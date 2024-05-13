@@ -48,17 +48,21 @@ const createUser = async (req, res) => {
         });
       })
     );
+    let token= jwt.sign({ id: newUser._id }, process.env.SECRET_KEY);
 
     res.json({
       message: "User created successfully",
       data: {
         username: newUser.username,
         email: newUser.email,
+        token: token,
       },
+      success: true,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" , success: false});
+    
   }
 };
 
