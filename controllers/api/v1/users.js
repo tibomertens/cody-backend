@@ -177,7 +177,64 @@ const updateUser = async (req, res) => {
   }
 };
 
-updateBudget =async (req, res) => {
+const updatePassword = async (req, res) => {
+  try {
+    // Check if email and password are provided in the request body
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({
+        status: "error",
+        success: false,
+        message: "Email and password are required",
+      });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // find user by email
+    let user = await User.findOne({
+      email: email
+    });
+
+    if (!user) {
+      return res.json({
+        status: "mislukt",
+        success: false,
+        message: "User niet gevonden",
+        data: null,
+      });
+    }
+
+    // Update the password using updateOne
+    let updatedUser = await User.updateOne(
+        { _id: user._id},
+        {
+          $set: {
+            password: hashedPassword,
+          },
+        }
+      );
+
+    res.json({
+      status: "success",
+      success: true,
+      message: "Password succesvol bijgewerkt",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).json({
+      status: "error",
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+
+const updateBudget =async (req, res) => {
   try {
     const userId = req.params.id; // Get user ID from URL parameter
     const budget = req.body.budget_current;
@@ -223,3 +280,4 @@ module.exports.deleteUser = deleteUser;
 module.exports.login = login;
 module.exports.updateUser = updateUser;
 module.exports.updateBudget = updateBudget;
+module.exports.updatePassword = updatePassword;

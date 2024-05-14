@@ -11,7 +11,8 @@ router.get("/", createUser.getUsers);
 router.delete("/:id", createUser.deleteUser);
 router.get("/:id", createUser.getUserById);
 router.post("/login", createUser.login);
-router.patch("/:id", createUser.updateUser);
+router.patch("/update/:id", createUser.updateUser);
 router.patch("/budget/:id", createUser.updateBudget);
+router.patch("/updatepassword", createUser.updatePassword);
 
 module.exports = router;
