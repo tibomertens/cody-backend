@@ -52,6 +52,25 @@ const getAll = async (req, res) => {
   }
 };
 
+// get all review for a specific promotor
+const getReviewsByPromotor = async (req, res) => {
+  const { promotorId } = req.params;
+
+  try {
+    const reviews = await Review.find({ promotorId });
+
+    return res.json({
+      success: "true",
+      data: reviews,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: "false",
+      message: error.message,
+    });
+  }
+};
+
 //put request to change the review
 const updateReview = async (req, res) => {
   const { id } = req.params;
@@ -123,6 +142,7 @@ const deleteReview = async (req, res) => {
 module.exports = {
   create,
   getAll,
+  getReviewsByPromotor,
   updateReview,
   deleteReview,
 };
