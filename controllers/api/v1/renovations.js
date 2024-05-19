@@ -19,6 +19,7 @@ const create = async (req, res) => {
     grants,
     startup_info,
     type,
+    highest_cost
   } = req.body;
 
   // Input validation
@@ -30,7 +31,8 @@ const create = async (req, res) => {
     !impact ||
     !grants ||
     !startup_info ||
-    !type
+    !type ||
+    !highest_cost
   ) {
     return res.status(400).json({
       status: "error",
@@ -49,6 +51,7 @@ const create = async (req, res) => {
       grants,
       startup_info,
       type,
+      highest_cost
     });
 
     // Save the renovation
