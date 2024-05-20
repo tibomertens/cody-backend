@@ -33,7 +33,7 @@ const PromotorSchema = new Schema({
     },
     is_top: { 
         type: Boolean, 
-        required: false, 
+        default: false, 
     },
     top_filter: { 
         type: String, 
@@ -41,6 +41,14 @@ const PromotorSchema = new Schema({
     },
     is_big: { 
         type: Boolean, 
+        default: false, 
+    },
+    is_accepted: { 
+        type: Boolean, 
+        default: false, 
+    },
+    message: { 
+        type: String, 
         required: false, 
     },
 });
