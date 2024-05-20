@@ -11,8 +11,9 @@ router.get("/", createUser.getUsers);
 router.delete("/:id", createUser.deleteUser);
 router.get("/:id", createUser.getUserById);
 router.post("/login", createUser.login);
+router.post("/sendpasswordresetmail", createUser.sendPasswordResetMail);
 router.patch("/update/:id", createUser.updateUser);
 router.patch("/budget/:id", createUser.updateBudget);
-router.patch("/updatepassword", createUser.updatePassword);
+router.patch("/resetpassword", createUser.resetPassword);
 
 module.exports = router;
