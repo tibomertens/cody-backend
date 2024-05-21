@@ -2,9 +2,10 @@ const Review = require("../../../models/Review.js");
 
 //create a new review with promotor, rating, title, description and date 
 const create = async (req, res) => {
-  const { userId, promotorId, rating, title, description, date } = req.body;
+  const { rating, title, description } = req.body;
+  const { promotorId, userId } = req.params;
 
-  if (!rating || !title || !description || !date) {
+  if (!rating || !title || !description) {
     return res.status(400).json({
       status: "error",
       message: "Missing required fields",
@@ -18,7 +19,6 @@ const create = async (req, res) => {
       rating,
       title,
       description,
-      date,
     });
 
     const savedReview = await newReview.save();
@@ -74,12 +74,12 @@ const getReviewsByPromotor = async (req, res) => {
 //put request to change the review
 const updateReview = async (req, res) => {
   const { id } = req.params;
-  const { rating, title, description, date } = req.body;
+  const { promotorId, userId, rating, title, description } = req.body;
 
-  if (!rating || !title || !description || !date) {
+  if (!rating || !title || !description ) {
     return res.status(400).json({
       status: "error",
-      message: "Missing required fields",
+      message: "Er ontbreken verplichte velden",
     });
   }
 
@@ -89,14 +89,15 @@ const updateReview = async (req, res) => {
     if (!review) {
       return res.status(404).json({
         status: "error",
-        message: "Review not found",
+        message: "Review niet gevonden",
       });
     }
 
     review.rating = rating;
     review.title = title;
     review.description = description;
-    review.date = date;
+    review.promotorId = promotorId;
+    review.userId = userId;
 
     const savedReview = await review.save();
 
@@ -137,6 +138,24 @@ const deleteReview = async (req, res) => {
     });
   }
 };
+
+getReviewById = async (req, res) => { 
+  let id = req.params.id; 
+  let review = await Review.findById(id);
+  if (!review) {
+    res.json({
+      succes: "false",
+      message: "review not found",
+      data: null,
+    });
+  } else {
+    res.json({
+      success: "true",
+      message: "review retrieved successfully",
+      data: review,
+    });
+  }
+};
   
 
 module.exports = {
@@ -145,4 +164,5 @@ module.exports = {
   getReviewsByPromotor,
   updateReview,
   deleteReview,
+  getReviewById,
 };
