@@ -7,6 +7,7 @@ const UserRenovationSchema = new Schema({
     renovation: { type: Schema.Types.ObjectId, ref: 'Renovation', required: true },
     renovation_title: { type: String, required: true },
     budget: { type: Number, default: 0 },
+    budget_final: { type: Number, default: 0},
     status: { type: String, default: 'Aanbevolen' },
     saved: { type: Boolean, default: false },
     startDate: { type: Date, required: false },
