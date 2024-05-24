@@ -251,6 +251,7 @@ const updateState = async (req, res) => {
       const newBudgetSpent = userRenovation.user.budget_spent + budgetDiff;
 
       userRenovation.budget_final = budget_final;
+      userRenovation.amount_done = amount_total;
 
       // Update user document
       userRenovation.user.budget_current = parseInt(newBudgetCurrent);
