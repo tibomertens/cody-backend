@@ -117,11 +117,17 @@ const deleteUser = async (req, res) => {
 
 const login = async (req, res) => {
   let user = await User.findOne({ email: req.body.email });
+
   if (user) {
     let password = await bcrypt.compare(req.body.password, user.password);
+
     if (password) {
       //create JWT token
-      let token = jwt.sign({ id: user._id }, process.env.SECRET_KEY);
+      let token = jwt.sign(
+        { id: user._id, admin: false },
+        process.env.SECRET_KEY
+      );
+
       res.json({
         status: "success",
         message: "login successful",
@@ -139,6 +145,59 @@ const login = async (req, res) => {
     res.json({
       status: "failed",
       message: "invalid email",
+      data: null,
+    });
+  }
+};
+
+const loginAdmin = async (req, res) => {
+  // check if email & password are filled in
+  if (!req.body.email || !req.body.password) {
+    return res.json({
+      status: "failed",
+      message: "Vul een email en wachtwoord in",
+      data: null,
+    });
+  }
+
+  let user = await User.findOne({ email: req.body.email });
+
+  if (user) {
+    let password = await bcrypt.compare(req.body.password, user.password);
+
+    if (password) {
+      // Check if the user is an admin
+      if (!user.admin) {
+        return res.json({
+          success: false,
+          message: "Je bent geen admin",
+          data: null,
+        });
+      }
+
+      //create JWT token
+      let token = jwt.sign(
+        { id: user._id, admin: true },
+        process.env.SECRET_KEY
+      );
+
+      res.json({
+        success: true,
+        message: "login successful",
+        data: user,
+        token: token,
+      });
+    } else {
+      res.json({
+        success: false,
+        message: "Incorrect wachtwoord",
+        data: null,
+      });
+    }
+  } else {
+    res.json({
+      success: false,
+      message: "Incorrect email",
       data: null,
     });
   }
@@ -353,6 +412,7 @@ module.exports.getUserById = getUserById;
 module.exports.deleteUser = deleteUser;
 module.exports.login = login;
 module.exports.updateUser = updateUser;
+module.exports.loginAdmin = loginAdmin;
 module.exports.updateBudget = updateBudget;
 module.exports.sendPasswordResetMail = sendPasswordResetMail;
 module.exports.resetPassword = resetPassword;

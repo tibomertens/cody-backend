@@ -11,6 +11,7 @@ router.get("/", createUser.getUsers);
 router.delete("/:id", createUser.deleteUser);
 router.get("/:id", createUser.getUserById);
 router.post("/login", createUser.login);
+router.post("/login/admin", createUser.loginAdmin);
 router.post("/sendpasswordresetmail", createUser.sendPasswordResetMail);
 router.patch("/update/:id", createUser.updateUser);
 router.patch("/budget/:id", createUser.updateBudget);

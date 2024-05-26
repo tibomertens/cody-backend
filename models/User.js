@@ -9,6 +9,7 @@ const UserSchema = new Schema({
   label: { type: String, required: false },
   goalLabel: { type: String, required: false },
   goalLabel_by_year: { type: Number, required: false },
+  admin: { type: Boolean, default: false },
   budget_current: { type: Number, required: false, default: 0 },
   budget_spent: { type: Number, required: false, default: 0 }, 
 });
