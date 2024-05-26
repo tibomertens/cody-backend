@@ -9,7 +9,10 @@ const createPromotor = require("../../../controllers/api/v1/promotors");
 
 router.post("/", createPromotor.createPromotor);
 router.get("/", createPromotor.getPromotors);
+router.get("/all/:id", createPromotor.getPromotorById);
+router.get("/unaccepted", createPromotor.getUnacceptedPromotors);
 router.delete("/:id", createPromotor.deletePromotorById);
 router.put("/:id", createPromotor.updatePromotorById);
+router.patch("/accept/:id", createPromotor.acceptPromotor);
 
 module.exports = router;
