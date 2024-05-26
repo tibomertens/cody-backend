@@ -160,6 +160,9 @@ getReviewById = async (req, res) => {
 const reportReview = async (req, res) => {
   let id = req.params.id; // Extract the review ID from the request parameters
 
+  // get is_reported from body
+  let is_reported = req.body.is_reported;
+
   try {
     let review = await Review.findById(id); // Find the review by its ID
 
@@ -173,7 +176,7 @@ const reportReview = async (req, res) => {
     }
 
     // If the review is found, update the is_reported field
-    review.is_reported = true;
+    review.is_reported = is_reported;
 
     // Save the updated review to the database
     await review.save();
@@ -194,6 +197,27 @@ const reportReview = async (req, res) => {
   }
 };
 
+const getReportedReviews = async (req, res) => {
+  try {
+    // Find all reviews that have been reported
+    let reviews = await Review.find({ is_reported: true });
+
+    // Send a response with the reported reviews
+    return res.json({
+      success: true,
+      message: "reported reviews retrieved successfully",
+      data: reviews,
+    });
+  } catch (error) {
+    // Handle any errors that occur during the process
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while retrieving reported reviews",
+      data: null,
+    });
+  }
+};
+
 module.exports = {
   create,
   getAll,
@@ -202,4 +226,5 @@ module.exports = {
   deleteReview,
   getReviewById,
   reportReview,
+  getReportedReviews,
 };
