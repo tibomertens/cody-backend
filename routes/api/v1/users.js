@@ -12,6 +12,9 @@ router.delete("/:id", createUser.deleteUser);
 router.get("/:id", createUser.getUserById);
 router.post("/login", createUser.login);
 router.post("/login/admin", createUser.loginAdmin);
-router.patch("/:id", createUser.updateUser);
+router.post("/sendpasswordresetmail", createUser.sendPasswordResetMail);
+router.patch("/update/:id", createUser.updateUser);
+router.patch("/budget/:id", createUser.updateBudget);
+router.patch("/resetpassword", createUser.resetPassword);
 
 module.exports = router;

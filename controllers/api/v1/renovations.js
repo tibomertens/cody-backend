@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 //require the renovations model
 const Renovation = require("../../../models/Renovation");
 
@@ -19,6 +21,7 @@ const create = async (req, res) => {
     grants,
     startup_info,
     type,
+    highest_cost
   } = req.body;
 
   // Input validation
@@ -30,7 +33,8 @@ const create = async (req, res) => {
     !impact ||
     !grants ||
     !startup_info ||
-    !type
+    !type ||
+    !highest_cost
   ) {
     return res.status(400).json({
       status: "error",
@@ -49,6 +53,7 @@ const create = async (req, res) => {
       grants,
       startup_info,
       type,
+      highest_cost
     });
 
     // Save the renovation
@@ -247,6 +252,47 @@ const getByType = async (req, res) => {
   }
 };
 
+
+const getCompletedRenovationsByMonth = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Step 2: Query the database for completed renovations of the user
+    const completedRenovations = await UserRenovation.find({
+      userId: userId,
+      status: "Voltooid"
+    });
+    if(!completedRenovations) {
+      return res.status(404).json({ error: 'User niet gevonden', success: false });
+    }
+
+    // Step 3: Group renovations by month and count them
+    const renovationsByMonth = {};
+
+    completedRenovations.forEach(renovation => {
+      const endDate = new Date(renovation.endDate);
+      const month = ('0' + (endDate.getMonth() + 1)).slice(-2); // Get month and pad with leading zero
+      const year = endDate.getFullYear();
+      const monthYear = `${month}/${year}`;
+      
+      if (!renovationsByMonth[monthYear]) {
+        renovationsByMonth[monthYear] = 0;
+      }
+      renovationsByMonth[monthYear]++;
+    });
+
+    // Step 4: Return the results
+    res.status(200).json({
+      success: true,
+      data: renovationsByMonth,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Er liep iets mis bij het ophalen van de renovaties.', success: false });
+  }
+};
+
 //export the functions
 module.exports = {
   create,
@@ -255,4 +301,5 @@ module.exports = {
   deleteById,
   updateById,
   getByType,
+  getCompletedRenovationsByMonth
 };

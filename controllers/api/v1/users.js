@@ -5,6 +5,7 @@ const Renovation = require("../../../models/Renovation");
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const nodemailer = require('nodemailer');
 const salt = 12;
 
 //create user
@@ -48,17 +49,21 @@ const createUser = async (req, res) => {
         });
       })
     );
+    let token= jwt.sign({ id: newUser._id }, process.env.SECRET_KEY);
 
     res.json({
       message: "User created successfully",
       data: {
         username: newUser.username,
         email: newUser.email,
+        token: token,
       },
+      success: true,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" , success: false});
+    
   }
 };
 
@@ -232,6 +237,175 @@ const updateUser = async (req, res) => {
   }
 };
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // e.g., 'gmail', 'yahoo', etc.
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+const sendPasswordResetMail = async (req, res) => {
+  try {
+    // Check if email is provided in the request body
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        status: "error",
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    // Find user by email
+    let user = await User.findOne({ email: email });
+
+    if (!user) {
+      return res.json({
+        status: "mislukt",
+        success: false,
+        message: "User niet gevonden",
+        data: null,
+      });
+    }
+
+    // Generate a password reset token
+    const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1h' });
+
+    // URL to reset the password (change `yourfrontend.com` to your actual frontend URL)
+    const resetUrl = `${process.env.APP_URL}/resetpassword?token=${token}`;
+
+    // Mail options
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Wachtwoord reset link',
+      text: `Je hebt aangevraagd uw wachtwoord te veranderen, u kunt deze veranderen op volgende url: ${resetUrl}`,
+    };
+
+    // Send the email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        return res.status(500).json({
+          status: "error",
+          success: false,
+          message: "Error sending email",
+        });
+      }
+      res.json({
+        status: "success",
+        success: true,
+        message: "Password reset link has been sent to your email.",
+      });
+    });
+  } catch (error) {
+    console.error("Error processing request:", error);
+    res.status(500).json({
+      status: "error",
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    // Get the token from the request body
+    const token = req.body.token;
+
+    // Check if token is provided
+    if (!token) {
+      return res.status(400).json({
+        status: "error",
+        success: false,
+        message: "Je hebt geen token opgegeven om je wachtwoord te resetten",
+      });
+    }
+
+    // Verify the token
+    jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({
+          status: "error",
+          success: false,
+          message: "Je token is ongeldig of verlopen",
+        });
+      }
+
+      // Find the user by id
+      let user = await User.findById(decoded.userId);
+
+      if (!user) {
+        return res.status(404).json({
+          status: "error",
+          success: false,
+          message: "User niet gevonden",
+        });
+      }
+
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(req.body.password, 12);
+
+      // Update the user's password
+      user.password = hashedPassword;
+      await user.save();
+
+      res.json({
+        status: "success",
+        success: true,
+        message: "Password reset successfully",
+      });
+    });
+  } catch (error) {
+    console.error("Error processing request:", error);
+    res.status(500).json({
+      status: "error",
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+const updateBudget =async (req, res) => {
+  try {
+    const userId = req.params.id; // Get user ID from URL parameter
+    const budget = req.body.budget_current;
+
+    // Find the user-specific data for the renovation
+    let userBudget = await User.findOne({ _id: userId })
+  .exec();
+
+if (!userBudget) {
+  return res.status(404).json({
+    message: "User-specific data not found for the user",
+  });
+}
+
+// Calculate new budget values
+if (userBudget.budget === null) {
+  userBudget.budget = 0;
+}
+const newBudgetCurrent = userBudget.budget_current + budget;
+
+
+// Update user document
+userBudget.budget_current = parseInt(newBudgetCurrent);
+
+await userBudget.save();
+
+// Send the updated user-specific data in the response
+res.json({
+  message: "User-specific data updated successfully",
+  data: userBudget,
+});
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports.createUser = createUser;
 module.exports.getUsers = getUsers;
 module.exports.getUserById = getUserById;
@@ -239,3 +413,6 @@ module.exports.deleteUser = deleteUser;
 module.exports.login = login;
 module.exports.updateUser = updateUser;
 module.exports.loginAdmin = loginAdmin;
+module.exports.updateBudget = updateBudget;
+module.exports.sendPasswordResetMail = sendPasswordResetMail;
+module.exports.resetPassword = resetPassword;

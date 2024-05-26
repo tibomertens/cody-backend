@@ -1,4 +1,5 @@
 // Require the userRenovation model
+const { parse } = require("dotenv");
 const UserRenovation = require("../../../models/UserRenovation");
 
 // Function to get user-specific data for a renovation
@@ -12,10 +13,10 @@ const getUserRenovation = async (req, res) => {
       user: userId,
       renovation: renovationId,
     })
-      .populate("user", "username email budget") // Populate the 'user' field to get user details
+      .populate("user", "username email budget_current budget_spent") // Populate the 'user' field to get user details
       .populate(
         "renovation",
-        "title description estimated_cost priority grants startup_info type impact startDate endDate budget amount_total amount_done notes checklist"
+        "title description estimated_cost priority grants startup_info type impact startDate endDate budget final_budget amount_total amount_done notes checklist cost"
       ) // Populate the 'renovation' field to get renovation details
       .exec();
 
@@ -195,13 +196,24 @@ const updateState = async (req, res) => {
   try {
     const userId = req.params.userId; // Get user ID from URL parameter
     const renovationId = req.params.renovationId; // Get renovation ID from URL parameter
-    const { status, budget, amount_total, startDate, endDate } = req.body;
+
+    const {
+      status,
+      budget,
+      budget_final,
+      amount_done,
+      amount_total,
+      startDate,
+      endDate,
+    } = req.body;
 
     // Find the user-specific data for the renovation
-    const userRenovation = await UserRenovation.findOne({
+    let userRenovation = await UserRenovation.findOne({
       user: userId,
       renovation: renovationId,
-    });
+    })
+      .populate("user") // Populate the 'user' field to get user details
+      .exec();
 
     if (!userRenovation) {
       return res.status(404).json({
@@ -209,16 +221,44 @@ const updateState = async (req, res) => {
       });
     }
 
-    // Update the items of the user-specific data
+    // Update userRenovation document
     userRenovation.status = status;
-    userRenovation.budget = budget;
     userRenovation.amount_total = amount_total;
+    userRenovation.amount_done = amount_done;
 
     if (status === "Actief") {
       userRenovation.startDate = startDate;
+
+      // Calculate new budget values
+      if (userRenovation.budget === null) {
+        userRenovation.budget = 0;
+      }
+      const budgetDiff = budget - userRenovation.budget;
+      const newBudgetCurrent = userRenovation.user.budget_current - budgetDiff;
+      const newBudgetSpent = userRenovation.user.budget_spent + budgetDiff;
+
+      userRenovation.budget = budget;
+
+      // Update user document
+      userRenovation.user.budget_current = parseInt(newBudgetCurrent);
+      userRenovation.user.budget_spent = parseInt(newBudgetSpent);
+      await userRenovation.user.save();
     } else if (status === "Voltooid") {
       userRenovation.endDate = endDate;
+
+      const budgetDiff = budget_final - userRenovation.budget;
+      const newBudgetCurrent = userRenovation.user.budget_current - budgetDiff;
+      const newBudgetSpent = userRenovation.user.budget_spent + budgetDiff;
+
+      userRenovation.budget_final = budget_final;
+      userRenovation.amount_done = amount_total;
+
+      // Update user document
+      userRenovation.user.budget_current = parseInt(newBudgetCurrent);
+      userRenovation.user.budget_spent = parseInt(newBudgetSpent);
+      await userRenovation.user.save();
     }
+
     await userRenovation.save();
 
     // Send the updated user-specific data in the response
@@ -272,16 +312,28 @@ const updateUserData = async (req, res) => {
     const { amount_total, startDate, budget } = req.body;
 
     // Find the user-specific data for the renovation
-    const userRenovation = await UserRenovation.findOne({
+    let userRenovation = await UserRenovation.findOne({
       user: userId,
       renovation: renovationId,
-    });
+    })
+      .populate("user") // Populate the 'user' field to get user details
+      .exec();
 
     if (!userRenovation) {
       return res.status(404).json({
         message: "User-specific data not found for the user and renovation.",
       });
     }
+
+    // Calculate new budget values
+    const budgetDiff = budget - userRenovation.budget;
+    const newBudgetCurrent = userRenovation.user.budget_current - budgetDiff;
+    const newBudgetSpent = userRenovation.user.budget_spent + budgetDiff;
+
+    // Update user document
+    userRenovation.user.budget_current = parseInt(newBudgetCurrent);
+    userRenovation.user.budget_spent = parseInt(newBudgetSpent);
+    await userRenovation.user.save();
 
     // Update the items of the user-specific data
     userRenovation.amount_total = amount_total;
