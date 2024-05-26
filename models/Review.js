@@ -8,6 +8,7 @@ const ReviewSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     date: { type: Date, default: Date.now },
+    is_reported: { type: Boolean, default: false }
 });
 
 const Review = mongoose.model('Review', ReviewSchema);

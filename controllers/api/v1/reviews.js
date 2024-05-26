@@ -1,6 +1,6 @@
 const Review = require("../../../models/Review.js");
 
-//create a new review with promotor, rating, title, description and date 
+//create a new review with promotor, rating, title, description and date
 const create = async (req, res) => {
   const { rating, title, description } = req.body;
   const { promotorId, userId } = req.params;
@@ -76,7 +76,7 @@ const updateReview = async (req, res) => {
   const { id } = req.params;
   const { promotorId, userId, rating, title, description } = req.body;
 
-  if (!rating || !title || !description ) {
+  if (!rating || !title || !description) {
     return res.status(400).json({
       status: "error",
       message: "Er ontbreken verplichte velden",
@@ -139,8 +139,8 @@ const deleteReview = async (req, res) => {
   }
 };
 
-getReviewById = async (req, res) => { 
-  let id = req.params.id; 
+getReviewById = async (req, res) => {
+  let id = req.params.id;
   let review = await Review.findById(id);
   if (!review) {
     res.json({
@@ -156,7 +156,43 @@ getReviewById = async (req, res) => {
     });
   }
 };
-  
+
+const reportReview = async (req, res) => {
+  let id = req.params.id; // Extract the review ID from the request parameters
+
+  try {
+    let review = await Review.findById(id); // Find the review by its ID
+
+    if (!review) {
+      // If the review is not found, send a response indicating failure
+      return res.json({
+        success: false,
+        message: "review not found",
+        data: null,
+      });
+    }
+
+    // If the review is found, update the is_reported field
+    review.is_reported = true;
+
+    // Save the updated review to the database
+    await review.save();
+
+    // Send a response indicating success
+    return res.json({
+      success: true,
+      message: "review reported successfully",
+      data: review,
+    });
+  } catch (error) {
+    // Handle any errors that occur during the process
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while reporting the review",
+      data: null,
+    });
+  }
+};
 
 module.exports = {
   create,
@@ -165,4 +201,5 @@ module.exports = {
   updateReview,
   deleteReview,
   getReviewById,
+  reportReview,
 };
