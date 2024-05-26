@@ -31,34 +31,36 @@ const createPromotor = async (req, res) => {
       !postalCode ||
       !logo
     ) {
-      return res
-        .status(400)
-        .json({
-          message: "Gelieve de verplichte velden in te vullen",
-          success: false,
-        });
+      return res.status(400).json({
+        message: "Gelieve de verplichte velden in te vullen",
+        success: false,
+      });
     }
 
     let is_big;
     let is_top;
     let top_filter;
+    let tier_name;
 
     if (tier === "1") {
       is_big = false;
       is_top = false;
       top_filter = null;
+      tier_name = "Basis samenwerking";
     } else if (tier === "2") {
       is_big = true;
       is_top = false;
       top_filter = null;
+      tier_name = "Gevorderde samenwerking";
     } else if (tier === "3") {
       is_big = false;
       is_top = true;
       top_filter = null;
+      tier_name = "Top-positie";
     }
 
     const promotor = new Promotor({
-      tier,
+      tier: tier_name,
       name,
       email,
       website_url: website,
@@ -80,13 +82,15 @@ const createPromotor = async (req, res) => {
       success: true,
     });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong", error: error, success: false });
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: error, success: false });
   }
 };
 
 //get promotors
 const getPromotors = async (req, res) => {
-  let promotors = await Promotor.find();
+  let promotors = await Promotor.find({ is_accepted: true });
   res.json({
     status: "success",
     message: "promotors retrieved successfully",
@@ -100,13 +104,13 @@ const deletePromotorById = async (req, res) => {
   let promotor = await Promotor.findByIdAndDelete(id);
   if (!promotor) {
     res.json({
-      status: "failed",
+      success: false,
       message: "promotor not found",
       data: null,
     });
   } else {
     res.json({
-      status: "success",
+      success: true,
       message: "promotor deleted successfully",
       data: promotor,
     });
@@ -153,7 +157,65 @@ const updatePromotorById = async (req, res) => {
   }
 };
 
+// get all promotors where is_accepted is false
+const getUnacceptedPromotors = async (req, res) => {
+  let promotors = await Promotor.find({ is_accepted: false });
+
+  res.json({
+    success: true,
+    message: "promotors retrieved successfully",
+    data: promotors,
+  });
+};
+
+const getPromotorById = async (req, res) => {
+  let id = req.params.id;
+
+  let promotor = await Promotor.findById(id);
+
+  if (!promotor) {
+    res.json({
+      success: false,
+      message: "promotor not found",
+      data: null,
+    });
+  } else {
+    res.json({
+      success: true,
+      message: "promotor retrieved successfully",
+      data: promotor,
+    });
+  }
+};
+
+const acceptPromotor = async (req, res) => {
+  let id = req.params.id;
+
+  let promotor = await Promotor.findById(id);
+
+  if (!promotor) {
+    res.json({
+      success: false,
+      message: "promotor not found",
+      data: null,
+    });
+  }
+
+  promotor.is_accepted = true;
+
+  await promotor.save();
+
+  res.json({
+    success: true,
+    message: "promotor accepted successfully",
+    data: promotor,
+  });
+};
+
 module.exports.createPromotor = createPromotor;
 module.exports.getPromotors = getPromotors;
 module.exports.deletePromotorById = deletePromotorById;
 module.exports.updatePromotorById = updatePromotorById;
+module.exports.getUnacceptedPromotors = getUnacceptedPromotors;
+module.exports.getPromotorById = getPromotorById;
+module.exports.acceptPromotor = acceptPromotor;

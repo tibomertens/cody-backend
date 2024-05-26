@@ -51,6 +51,14 @@ const PromotorSchema = new Schema({
         type: String, 
         required: false, 
     },
+    tier: { 
+        type: String, 
+        required: true, 
+    },
+    email: { 
+        type: String, 
+        required: true, 
+    },
 });
 
 module.exports = mongoose.model('Promotor', PromotorSchema);
