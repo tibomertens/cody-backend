@@ -177,8 +177,11 @@ const updateRecommendations = async (req, res) => {
       });
     }
 
-    // Update the status of the user-specific data
-    userRenovation.status = status;
+    if (userRenovation.status === "Aanbevolen") {
+      // Update the status of the user-specific data
+      userRenovation.status = status;
+    }
+
     await userRenovation.save();
 
     // Send the updated user-specific data in the response
