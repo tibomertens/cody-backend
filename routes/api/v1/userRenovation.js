@@ -13,6 +13,7 @@ router.get("/users/:userId/recommended", userRenovation.getRecommended);
 router.get("/users/:userId/active", userRenovation.getActive);
 router.get("/users/:userId/saved", userRenovation.getSaved);
 router.get("/users/:userId/completed", userRenovation.getCompleted);
+router.get("/users/:userId/renovations", userRenovation.getAll);
 router.patch("/users/:userId/renovations/:renovationTitle", userRenovation.updateRecommendations);
 router.patch("/users/:userId/renovations/:renovationId/updateState", userRenovation.updateState);
 router.patch("/users/:userId/renovations/:renovationId/updateAmount", userRenovation.updateAmount);

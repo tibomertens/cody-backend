@@ -454,6 +454,40 @@ const updateChecklist = async (req, res) => {
   }
 };
 
+// get all renovations from userId
+const getAll = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get user ID from URL parameter
+
+    // Query UserRenovation to get specific data for the user and renovation
+    const userRenovation = await UserRenovation.find({
+      user: userId,
+    })
+      .populate("user", "username email budget_current budget_spent") // Populate the 'user' field to get user details
+      .populate(
+        "renovation",
+        "title description estimated_cost priority grants startup_info type impact startDate endDate budget final_budget amount_total amount_done notes checklist cost"
+      ) // Populate the 'renovation' field to get renovation details
+      .exec();
+
+    if (!userRenovation) {
+      return res.status(404).json({
+        message: "User-specific data not found for the user and renovation.",
+      });
+    }
+
+    // Send the user-specific data in the response
+    res.json({
+      message: "User-specific data found",
+      data: userRenovation,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 module.exports = {
   getUserRenovation,
   getRecommended,
@@ -467,4 +501,5 @@ module.exports = {
   updateSaved,
   updateNotes,
   updateChecklist,
+  getAll,
 };
