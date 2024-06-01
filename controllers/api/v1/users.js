@@ -172,7 +172,7 @@ const login = async (req, res) => {
 
   if (user) {
     if (!user.emailConfirmed) {
-      return res.status(403).json({
+      return res.json({
         message: "Bevestig uw emailadres om in te loggen",
         success: false,
       });
@@ -188,21 +188,21 @@ const login = async (req, res) => {
       );
 
       res.json({
-        status: "success",
+        success: true,
         message: "login successful",
         data: user,
         token: token,
       });
     } else {
       res.json({
-        status: "failed",
+        success: false,
         message: "Onjuist wachtwoord",
         data: null,
       });
     }
   } else {
     res.json({
-      status: "failed",
+      success: false,
       message: "Onjuist emailadres",
       data: null,
     });
