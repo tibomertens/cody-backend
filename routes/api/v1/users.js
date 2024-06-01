@@ -16,5 +16,6 @@ router.post("/sendpasswordresetmail", createUser.sendPasswordResetMail);
 router.patch("/update/:id", createUser.updateUser);
 router.patch("/budget/:id", createUser.updateBudget);
 router.patch("/resetpassword", createUser.resetPassword);
+router.get("/confirm/:token", createUser.confirmEmail);
 
 module.exports = router;
