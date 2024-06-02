@@ -96,22 +96,32 @@ const getUserById = async (req, res) => {
   }
 };
 
-//delete user by id
 const deleteUser = async (req, res) => {
-  let id = req.params.id;
-  let user = await User.findByIdAndDelete(id);
-  if (!user) {
-    res.json({
-      status: "failed",
-      message: "user not found",
-      data: null,
-    });
-  } else {
-    res.json({
+  try {
+    let id = req.params.id;
+
+    // Find the user to be deleted
+    let user = await User.findByIdAndDelete(id);
+    
+    if (!user) {
+      return res.json({
+        status: "failed",
+        message: "User not found",
+        data: null,
+      });
+    }
+
+    // Delete associated userRenovations
+    await UserRenovation.deleteMany({ user: user._id });
+
+    return res.json({
       status: "success",
-      message: "user deleted successfully",
+      message: "User deleted successfully",
       data: user,
     });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
