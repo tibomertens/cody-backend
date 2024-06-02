@@ -1,6 +1,8 @@
 //promotor model
 const Promotor = require("../../../models/Promotor");
 
+const sanitizeHtml = require("sanitize-html");
+
 //create promotor
 const createPromotor = async (req, res) => {
   try {
@@ -59,16 +61,27 @@ const createPromotor = async (req, res) => {
       tier_name = "Top-positie";
     }
 
+    // sanitize name, email, website, phoneNumber, street, streetNumber, city, postalCode, message
+    const sanitizedName = sanitizeHtml(name);
+    const sanitizedEmail = sanitizeHtml(email);
+    const sanitizedWebsite = sanitizeHtml(website);
+    const sanitizedPhoneNumber = sanitizeHtml(phoneNumber);
+    const sanitizedStreet = sanitizeHtml(street);
+    const sanitizedStreetNumber = sanitizeHtml(streetNumber);
+    const sanitizedCity = sanitizeHtml(city);
+    const sanitizedPostalCode = sanitizeHtml(postalCode);
+    const sanitizedMessage = sanitizeHtml(message);
+
     const promotor = new Promotor({
       tier: tier_name,
-      name,
-      email,
-      website_url: website,
-      phoneNumber,
-      location: city,
-      address: `${street} ${streetNumber}, ${postalCode} ${city}`,
+      name: sanitizedName,
+      email: sanitizedEmail,
+      website_url: sanitizedWebsite,
+      phoneNumber: sanitizedPhoneNumber,
+      location: sanitizedCity,
+      address: `${sanitizedStreet} ${sanitizedStreetNumber}, ${sanitizedPostalCode} ${sanitizedCity}`,
       logo,
-      message,
+      message: sanitizedMessage,
       is_top,
       top_filter,
       is_big,
@@ -121,6 +134,7 @@ const deletePromotorById = async (req, res) => {
 const updatePromotorById = async (req, res) => {
   let id = req.params.id;
   let promotor = await Promotor.findById(id);
+
   if (!promotor) {
     res.json({
       status: "failed",
@@ -128,16 +142,19 @@ const updatePromotorById = async (req, res) => {
       data: null,
     });
   } else {
-    let name = req.body.name;
-    let phoneNumber = req.body.phoneNumber;
-    let location = req.body.location;
-    let address = req.body.address;
-    let rating = req.body.rating;
-    let logo = req.body.logo;
-    let website_url = req.body.website_url;
-    let is_top = req.body.is_top;
-    let top_filter = req.body.top_filter;
-    let is_big = req.body.is_big;
+    const {
+      name,
+      phoneNumber,
+      location,
+      address,
+      rating,
+      logo,
+      website_url,
+      is_top,
+      top_filter,
+      is_big,
+    } = req.body;
+
     promotor.name = name;
     promotor.phoneNumber = phoneNumber;
     promotor.location = location;
@@ -148,7 +165,9 @@ const updatePromotorById = async (req, res) => {
     promotor.is_top = is_top;
     promotor.top_filter = top_filter;
     promotor.is_big = is_big;
+
     await promotor.save();
+
     res.json({
       status: "success",
       message: "promotor updated successfully",

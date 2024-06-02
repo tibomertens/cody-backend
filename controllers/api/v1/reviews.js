@@ -1,6 +1,7 @@
 const Review = require("../../../models/Review.js");
 
-//create a new review with promotor, rating, title, description and date
+const sanitizeHtml = require("sanitize-html");
+
 const create = async (req, res) => {
   const { rating, title, description } = req.body;
   const { promotorId, userId } = req.params;
@@ -13,23 +14,27 @@ const create = async (req, res) => {
   }
 
   try {
+    // Sanitize input
+    const sanitizedTitle = sanitizeHtml(title);
+    const sanitizedDescription = sanitizeHtml(description);
+
     const newReview = new Review({
       userId,
       promotorId,
       rating,
-      title,
-      description,
+      title: sanitizedTitle,
+      description: sanitizedDescription,
     });
 
     const savedReview = await newReview.save();
 
     return res.json({
-      succes: "true",
+      success: true,
       data: savedReview,
     });
   } catch (error) {
     return res.status(500).json({
-      succes: "false",
+      success: false,
       message: error.message,
     });
   }
@@ -93,9 +98,13 @@ const updateReview = async (req, res) => {
       });
     }
 
+    // Sanitize input
+    const sanitizedTitle = sanitizeHtml(title);
+    const sanitizedDescription = sanitizeHtml(description);
+
     review.rating = rating;
-    review.title = title;
-    review.description = description;
+    review.title = sanitizedTitle;
+    review.description = sanitizedDescription;
     review.promotorId = promotorId;
     review.userId = userId;
 
