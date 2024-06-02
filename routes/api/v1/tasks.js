@@ -7,10 +7,13 @@ const router = express.Router();
 //import controller for promotors
 const taskscontroller = require("../../../controllers/api/v1/tasks");
 
-router.post("/", taskscontroller.create);
-router.get("/", taskscontroller.getAll);
-router.get("/:userId", taskscontroller.getByUserId);
-router.put("/:taskId", taskscontroller.update);
-router.delete("/:taskId", taskscontroller.remove);
+// import auth from middleware/auth
+const auth = require("../../../middleware/auth/Auth");
+
+router.post("/", auth.verifyApiKey, taskscontroller.create);
+router.get("/", auth.verifyApiKey, taskscontroller.getAll);
+router.get("/:userId", auth.verifyApiKey, taskscontroller.getByUserId);
+router.put("/:taskId", auth.verifyApiKey, taskscontroller.update);
+router.delete("/:taskId", auth.verifyApiKey, taskscontroller.remove);
 
 module.exports = router;
