@@ -214,14 +214,7 @@ const loginAdmin = async (req, res) => {
 const updateUser = async (req, res) => {
   let id = req.params.id;
   try {
-    // Hash the password if it exists in the request body
-    if (req.body.password) {
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
-      req.body.password = hashedPassword;
-    }
-
-    // Find the user by id and update
-    let user = await User.findByIdAndUpdate(id, req.body, { new: true });
+    let user = await User.findOne({ _id: id });
 
     if (!user) {
       return res.json({
@@ -230,6 +223,32 @@ const updateUser = async (req, res) => {
         data: null,
       });
     }
+
+    // If the request body contains a password
+    if (req.body.password) {
+      // Check if the oldPassword is provided in the request body
+      if (!req.body.old_password) {
+        return res.status(400).json({
+          status: "failed",
+          message: "Old password is required",
+        });
+      }
+
+      // Compare the old password provided with the existing password
+      const isMatch = await bcrypt.compare(req.body.old_password, user.password);
+      if (!isMatch) {
+        return res.json({
+          success: false,
+          message: "Oud wachtwoord is onjuist",
+        });
+      }
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      req.body.password = hashedPassword;
+    }
+
+    // Find the user by id and update with the new data
+    user = await User.findByIdAndUpdate(id, req.body, { new: true });
 
     res.json({
       status: "success",
