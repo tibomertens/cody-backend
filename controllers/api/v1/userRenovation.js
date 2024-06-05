@@ -312,7 +312,7 @@ const updateUserData = async (req, res) => {
   try {
     const userId = req.params.userId; // Get user ID from URL parameter
     const renovationId = req.params.renovationId; // Get renovation ID from URL parameter
-    const { amount_total, startDate, budget } = req.body;
+    const { amount_total, startDate, budget, budget_final } = req.body;
 
     // Find the user-specific data for the renovation
     let userRenovation = await UserRenovation.findOne({
@@ -328,26 +328,48 @@ const updateUserData = async (req, res) => {
       });
     }
 
-    // Calculate new budget values
-    const budgetDiff = budget - userRenovation.budget;
-    const newBudgetCurrent = userRenovation.user.budget_current - budgetDiff;
-    const newBudgetSpent = userRenovation.user.budget_spent + budgetDiff;
+    if (userRenovation.status === "Actief") {
 
-    // Update user document
-    userRenovation.user.budget_current = parseInt(newBudgetCurrent);
-    userRenovation.user.budget_spent = parseInt(newBudgetSpent);
-    await userRenovation.user.save();
 
-    // Update the items of the user-specific data
-    userRenovation.amount_total = amount_total;
-    userRenovation.startDate = startDate;
-    userRenovation.budget = budget;
+      // Calculate new budget values
+      if (userRenovation.budget === null) {
+        userRenovation.budget = 0;
+      }
+      const budgetDiff = budget - userRenovation.budget;
+      const newBudgetCurrent = userRenovation.user.budget_current - budgetDiff;
+      const newBudgetSpent = userRenovation.user.budget_spent + budgetDiff;
+
+      userRenovation.budget = budget;
+
+      // Update user document
+      userRenovation.user.budget_current = parseInt(newBudgetCurrent);
+      userRenovation.user.budget_spent = parseInt(newBudgetSpent);
+      await userRenovation.user.save();
+    } else if (userRenovation.status === "Voltooid") {
+
+
+      const budgetDiff = budget_final - userRenovation.budget;
+      const newBudgetCurrent = userRenovation.user.budget_current - budgetDiff;
+      const newBudgetSpent = userRenovation.user.budget_spent + budgetDiff;
+
+
+
+      userRenovation.budget_final = budget_final;
+      userRenovation.amount_done = amount_total;
+
+      // Update user document
+      userRenovation.user.budget_current = parseInt(newBudgetCurrent);
+      userRenovation.user.budget_spent = parseInt(newBudgetSpent);
+      await userRenovation.user.save();
+    }
+
     await userRenovation.save();
 
     // Send the updated user-specific data in the response
     res.json({
       message: "User-specific data updated successfully",
       data: userRenovation,
+      success: true
     });
   } catch (error) {
     console.error(error);
@@ -454,6 +476,40 @@ const updateChecklist = async (req, res) => {
   }
 };
 
+// get all renovations from userId
+const getAll = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get user ID from URL parameter
+
+    // Query UserRenovation to get specific data for the user and renovation
+    const userRenovation = await UserRenovation.find({
+      user: userId,
+    })
+      .populate("user", "username email budget_current budget_spent") // Populate the 'user' field to get user details
+      .populate(
+        "renovation",
+        "title description estimated_cost priority grants startup_info type impact startDate endDate budget final_budget amount_total amount_done notes checklist cost"
+      ) // Populate the 'renovation' field to get renovation details
+      .exec();
+
+    if (!userRenovation) {
+      return res.status(404).json({
+        message: "User-specific data not found for the user and renovation.",
+      });
+    }
+
+    // Send the user-specific data in the response
+    res.json({
+      message: "User-specific data found",
+      data: userRenovation,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 module.exports = {
   getUserRenovation,
   getRecommended,
@@ -467,4 +523,5 @@ module.exports = {
   updateSaved,
   updateNotes,
   updateChecklist,
+  getAll,
 };
