@@ -16,9 +16,7 @@ const createUser = async (req, res) => {
     // Check if the user already exists
     let existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User with this email already exists" });
+      return res.json({ success: false, message: "Er bestaat al een gebruiker met deze email" });
     }
 
     // Create a new user instance
@@ -96,22 +94,32 @@ const getUserById = async (req, res) => {
   }
 };
 
-//delete user by id
 const deleteUser = async (req, res) => {
-  let id = req.params.id;
-  let user = await User.findByIdAndDelete(id);
-  if (!user) {
-    res.json({
-      status: "failed",
-      message: "user not found",
-      data: null,
-    });
-  } else {
-    res.json({
+  try {
+    let id = req.params.id;
+
+    // Find the user to be deleted
+    let user = await User.findByIdAndDelete(id);
+    
+    if (!user) {
+      return res.json({
+        status: "failed",
+        message: "User not found",
+        data: null,
+      });
+    }
+
+    // Delete associated userRenovations
+    await UserRenovation.deleteMany({ user: user._id });
+
+    return res.json({
       status: "success",
-      message: "user deleted successfully",
+      message: "User deleted successfully",
       data: user,
     });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
@@ -206,14 +214,7 @@ const loginAdmin = async (req, res) => {
 const updateUser = async (req, res) => {
   let id = req.params.id;
   try {
-    // Hash the password if it exists in the request body
-    if (req.body.password) {
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
-      req.body.password = hashedPassword;
-    }
-
-    // Find the user by id and update
-    let user = await User.findByIdAndUpdate(id, req.body, { new: true });
+    let user = await User.findOne({ _id: id });
 
     if (!user) {
       return res.json({
@@ -222,6 +223,32 @@ const updateUser = async (req, res) => {
         data: null,
       });
     }
+
+    // If the request body contains a password
+    if (req.body.password) {
+      // Check if the oldPassword is provided in the request body
+      if (!req.body.old_password) {
+        return res.status(400).json({
+          status: "failed",
+          message: "Old password is required",
+        });
+      }
+
+      // Compare the old password provided with the existing password
+      const isMatch = await bcrypt.compare(req.body.old_password, user.password);
+      if (!isMatch) {
+        return res.json({
+          success: false,
+          message: "Oud wachtwoord is onjuist",
+        });
+      }
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      req.body.password = hashedPassword;
+    }
+
+    // Find the user by id and update with the new data
+    user = await User.findByIdAndUpdate(id, req.body, { new: true });
 
     res.json({
       status: "success",

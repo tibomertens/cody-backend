@@ -7,12 +7,15 @@ const router = express.Router();
 //import controller for promotors
 const createPromotor = require("../../../controllers/api/v1/promotors");
 
-router.post("/", createPromotor.createPromotor);
-router.get("/", createPromotor.getPromotors);
-router.get("/all/:id", createPromotor.getPromotorById);
-router.get("/unaccepted", createPromotor.getUnacceptedPromotors);
-router.delete("/:id", createPromotor.deletePromotorById);
-router.put("/:id", createPromotor.updatePromotorById);
-router.patch("/accept/:id", createPromotor.acceptPromotor);
+// import auth from middleware/auth
+const auth = require("../../../middleware/auth/Auth");
+
+router.post("/", auth.verifyApiKey, createPromotor.createPromotor);
+router.get("/", auth.verifyApiKey, createPromotor.getPromotors);
+router.get("/all/:id", auth.verifyApiKey, createPromotor.getPromotorById);
+router.get("/unaccepted", auth.verifyApiKey, createPromotor.getUnacceptedPromotors);
+router.delete("/:id", auth.verifyApiKey, createPromotor.deletePromotorById);
+router.put("/:id", auth.verifyApiKey, createPromotor.updatePromotorById);
+router.patch("/accept/:id", auth.verifyApiKey, createPromotor.acceptPromotor);
 
 module.exports = router;
