@@ -16,6 +16,7 @@ router.get("/users/:userId/recommended", auth.verifyApiKey, userRenovation.getRe
 router.get("/users/:userId/active", auth.verifyApiKey, userRenovation.getActive);
 router.get("/users/:userId/saved", auth.verifyApiKey, userRenovation.getSaved);
 router.get("/users/:userId/completed", userRenovation.getCompleted);
+router.get("/users/:userId/paused", userRenovation.getPaused);
 router.get("/users/:userId/renovations", auth.verifyApiKey, userRenovation.getAll);
 router.patch("/users/:userId/renovations/:renovationTitle", auth.verifyApiKey, userRenovation.updateRecommendations);
 router.patch("/users/:userId/renovations/:renovationId/updateState", auth.verifyApiKey, userRenovation.updateState);

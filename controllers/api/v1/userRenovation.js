@@ -159,6 +159,36 @@ const getCompleted = async (req, res) => {
   }
 };
 
+const getPaused = async (req, res) => {
+  try {
+    const userId = req.params.userId; // Get user ID from URL parameter
+
+    // Query UserRenovation to get all paused renovations for the user
+    const pausedRenovations = await UserRenovation.find({
+      user: userId,
+      status: "Gepauzeerd",
+    })
+      .populate({
+        path: "renovation",
+        select:
+          "title description estimated_cost cost impact grants startup_info type", // Specify the fields you want to include from Renovation model
+      })
+      .exec();
+
+    // Extract only the populated renovation data from pausedRenovations
+    const renovationData = pausedRenovations.map((item) => item.renovation);
+
+    // Send the paused renovations in the response
+    res.json({
+      message: "Paused renovations found",
+      data: renovationData,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const updateRecommendations = async (req, res) => {
   try {
     const userId = req.params.userId; // Get user ID from URL parameter
@@ -516,6 +546,7 @@ module.exports = {
   getActive,
   getSaved,
   getCompleted,
+  getPaused,
   updateRecommendations,
   updateState,
   updateAmount,
