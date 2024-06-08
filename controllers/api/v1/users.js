@@ -5,35 +5,52 @@ const Renovation = require("../../../models/Renovation");
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const nodemailer = require('nodemailer');
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 const salt = 12;
 
-//create user
+const transporter = nodemailer.createTransport({
+  service: "gmail", // e.g., 'gmail', 'yahoo', etc.
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 const createUser = async (req, res) => {
   try {
-    const { username, password, email } = req.body;
+    const { username, password, email, allowEmails } = req.body;
 
     // Check if the user already exists
     let existingUser = await User.findOne({ email });
+
     if (existingUser) {
-      return res.json({ success: false, message: "Er bestaat al een gebruiker met deze email" });
+      return res.json({
+        message: "Gebruiker bestaat al",
+        success: false,
+      });
     }
 
     // Create a new user instance
     const newUser = new User({
       username,
       email,
+      allowEmails,
     });
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, salt);
     newUser.password = hashedPassword;
 
+    // Generate a confirmation token
+    const confirmationToken = crypto.randomBytes(16).toString("hex");
+    newUser.confirmationToken = confirmationToken;
+
     // Save the new user
     await newUser.save();
 
     // Get all renovations from Renovation model
-    const renovations = await Renovation.find({}, "_id title"); // Get only the IDs of renovations
+    const renovations = await Renovation.find({}, "_id title");
 
     // Create default entries in UserRenovation for each renovation
     await Promise.all(
@@ -47,21 +64,58 @@ const createUser = async (req, res) => {
         });
       })
     );
-    let token= jwt.sign({ id: newUser._id }, process.env.SECRET_KEY);
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: newUser.email,
+      subject: "Account bevestigen",
+      text: `Klik op deze link om uw account te bevestigen: ${process.env.APP_URL}/confirm/${confirmationToken}`,
+    };
+
+    await transporter.sendMail(mailOptions);
 
     res.json({
-      message: "User created successfully",
-      data: {
-        username: newUser.username,
-        email: newUser.email,
-        token: token,
-      },
+      message:
+        "Account aangemaakt. Bevestig uw emailadres om in te loggen. Controleer uw inbox of spamfolder.",
       success: true,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" , success: false});
-    
+    res.status(500).json({ message: "Internal server error", success: false });
+  }
+};
+
+const confirmEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    // Find the user with the corresponding confirmation token
+    const user = await User.findOne({ confirmationToken: token });
+
+    if (!user) {
+      res.json({
+        message:
+          "Incorrecte of verlopen bevestigingslink. Probeer opnieuw te registreren.",
+        success: false,
+      });
+      return;
+    }
+
+    let jwtToken = jwt.sign({ id: user._id }, process.env.SECRET_KEY);
+
+    // Update the user's emailConfirmed status
+    user.emailConfirmed = true;
+    user.confirmationToken = '';
+    await user.save();
+
+    res.json({
+      message: "Email confirmed successfully",
+      success: true,
+      token: jwtToken,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
@@ -127,6 +181,13 @@ const login = async (req, res) => {
   let user = await User.findOne({ email: req.body.email });
 
   if (user) {
+    if (!user.emailConfirmed) {
+      return res.json({
+        message: "Bevestig uw emailadres om in te loggen",
+        success: false,
+      });
+    }
+
     let password = await bcrypt.compare(req.body.password, user.password);
 
     if (password) {
@@ -137,22 +198,22 @@ const login = async (req, res) => {
       );
 
       res.json({
-        status: "success",
+        success: true,
         message: "login successful",
         data: user,
         token: token,
       });
     } else {
       res.json({
-        status: "failed",
-        message: "invalid password",
+        success: false,
+        message: "Onjuist wachtwoord",
         data: null,
       });
     }
   } else {
     res.json({
-      status: "failed",
-      message: "invalid email",
+      success: false,
+      message: "Onjuist emailadres",
       data: null,
     });
   }
@@ -214,14 +275,37 @@ const loginAdmin = async (req, res) => {
 const updateUser = async (req, res) => {
   let id = req.params.id;
   try {
-    let user = await User.findOne({ _id: id });
+    // Fetch the current user data by id
+    let currentUser = await User.findById(id);
 
-    if (!user) {
+    if (!currentUser) {
       return res.json({
         status: "failed",
         message: "User not found",
         data: null,
       });
+    }
+
+    let emailUpdated = false;
+
+    // Check if the email has changed
+    if (req.body.email && req.body.email !== currentUser.email) {
+      // Generate a confirmation token
+      const confirmationToken = crypto.randomBytes(16).toString("hex");
+      currentUser.confirmationToken = confirmationToken;
+      currentUser.emailConfirmed = false;
+      emailUpdated = true;
+
+      await currentUser.save();
+
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: req.body.email,
+        subject: "Nieuwe email bevestigen",
+        text: `Klik op deze link om uw nieuwe email te bevestigen: ${process.env.APP_URL}/confirm/${confirmationToken}`,
+      };
+
+      await transporter.sendMail(mailOptions);
     }
 
     // If the request body contains a password
@@ -247,13 +331,14 @@ const updateUser = async (req, res) => {
       req.body.password = hashedPassword;
     }
 
-    // Find the user by id and update with the new data
-    user = await User.findByIdAndUpdate(id, req.body, { new: true });
+    // Find the user by id and update
+    let updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
 
     res.json({
       status: "success",
+      emailUpdated: emailUpdated,
       message: "User updated successfully",
-      data: user,
+      data: updatedUser,
     });
   } catch (error) {
     console.error("Error updating user:", error);
@@ -263,14 +348,6 @@ const updateUser = async (req, res) => {
     });
   }
 };
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail', // e.g., 'gmail', 'yahoo', etc.
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 const sendPasswordResetMail = async (req, res) => {
   try {
@@ -297,7 +374,9 @@ const sendPasswordResetMail = async (req, res) => {
     }
 
     // Generate a password reset token
-    const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY, {
+      expiresIn: "1h",
+    });
 
     // URL to reset the password (change `yourfrontend.com` to your actual frontend URL)
     const resetUrl = `${process.env.APP_URL}/resetpassword?token=${token}`;
@@ -306,7 +385,7 @@ const sendPasswordResetMail = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Wachtwoord reset link',
+      subject: "Wachtwoord reset link",
       text: `Je hebt aangevraagd uw wachtwoord te veranderen, u kunt deze veranderen op volgende url: ${resetUrl}`,
     };
 
@@ -394,39 +473,36 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const updateBudget =async (req, res) => {
+const updateBudget = async (req, res) => {
   try {
     const userId = req.params.id; // Get user ID from URL parameter
     const budget = req.body.budget_current;
 
     // Find the user-specific data for the renovation
-    let userBudget = await User.findOne({ _id: userId })
-  .exec();
+    let userBudget = await User.findOne({ _id: userId }).exec();
 
-if (!userBudget) {
-  return res.status(404).json({
-    message: "User-specific data not found for the user",
-  });
-}
+    if (!userBudget) {
+      return res.status(404).json({
+        message: "User-specific data not found for the user",
+      });
+    }
 
-// Calculate new budget values
-if (userBudget.budget === null) {
-  userBudget.budget = 0;
-}
-const newBudgetCurrent = userBudget.budget_current + budget;
+    // Calculate new budget values
+    if (userBudget.budget === null) {
+      userBudget.budget = 0;
+    }
+    const newBudgetCurrent = userBudget.budget_current + budget;
 
+    // Update user document
+    userBudget.budget_current = parseInt(newBudgetCurrent);
 
-// Update user document
-userBudget.budget_current = parseInt(newBudgetCurrent);
+    await userBudget.save();
 
-await userBudget.save();
-
-// Send the updated user-specific data in the response
-res.json({
-  message: "User-specific data updated successfully",
-  data: userBudget,
-});
-
+    // Send the updated user-specific data in the response
+    res.json({
+      message: "User-specific data updated successfully",
+      data: userBudget,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -443,3 +519,4 @@ module.exports.loginAdmin = loginAdmin;
 module.exports.updateBudget = updateBudget;
 module.exports.sendPasswordResetMail = sendPasswordResetMail;
 module.exports.resetPassword = resetPassword;
+module.exports.confirmEmail = confirmEmail;

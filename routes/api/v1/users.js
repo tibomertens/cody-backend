@@ -19,5 +19,6 @@ router.post("/sendpasswordresetmail", auth.verifyApiKey, createUser.sendPassword
 router.patch("/update/:id", auth.verifyApiKey, createUser.updateUser);
 router.patch("/budget/:id", auth.verifyApiKey, createUser.updateBudget);
 router.patch("/resetpassword", auth.verifyApiKey, createUser.resetPassword);
+router.get("/confirm/:token", createUser.confirmEmail);
 
 module.exports = router;
