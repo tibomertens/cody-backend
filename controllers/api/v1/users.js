@@ -105,7 +105,7 @@ const confirmEmail = async (req, res) => {
 
     // Update the user's emailConfirmed status
     user.emailConfirmed = true;
-    user.confirmationToken = undefined;
+    user.confirmationToken = '';
     await user.save();
 
     res.json({
@@ -265,16 +265,10 @@ const loginAdmin = async (req, res) => {
 const updateUser = async (req, res) => {
   let id = req.params.id;
   try {
-    // Hash the password if it exists in the request body
-    if (req.body.password) {
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
-      req.body.password = hashedPassword;
-    }
+    // Fetch the current user data by id
+    let currentUser = await User.findById(id);
 
-    // Find the user by id and update
-    let user = await User.findByIdAndUpdate(id, req.body, { new: true });
-
-    if (!user) {
+    if (!currentUser) {
       return res.json({
         status: "failed",
         message: "User not found",
@@ -282,10 +276,42 @@ const updateUser = async (req, res) => {
       });
     }
 
+    let emailUpdated = false;
+
+    // Check if the email has changed
+    if (req.body.email && req.body.email !== currentUser.email) {
+      // Generate a confirmation token
+      const confirmationToken = crypto.randomBytes(16).toString("hex");
+      currentUser.confirmationToken = confirmationToken;
+      currentUser.emailConfirmed = false;
+      emailUpdated = true;
+
+      await currentUser.save();
+
+      const mailOptions = {
+        from: process.env.EMAIL,
+        to: req.body.email,
+        subject: "Nieuwe email bevestigen",
+        text: `Klik op deze link om uw nieuwe email te bevestigen: ${process.env.APP_URL}/confirm/${confirmationToken}`,
+      };
+
+      await transporter.sendMail(mailOptions);
+    }
+
+    // Hash the password if it exists in the request body
+    if (req.body.password) {
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      req.body.password = hashedPassword;
+    }
+
+    // Find the user by id and update
+    let updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
+
     res.json({
       status: "success",
+      emailUpdated: emailUpdated,
       message: "User updated successfully",
-      data: user,
+      data: updatedUser,
     });
   } catch (error) {
     console.error("Error updating user:", error);
