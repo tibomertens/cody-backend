@@ -260,6 +260,15 @@ const updateState = async (req, res) => {
       userRenovation.user.budget_current = parseInt(newBudgetCurrent);
       userRenovation.user.budget_spent = parseInt(newBudgetSpent);
       await userRenovation.user.save();
+    } else if (status === "Aanbevolen") {
+      const budgetDiff = userRenovation.budget;
+      const newBudgetCurrent = userRenovation.user.budget_current + budgetDiff;
+      const newBudgetSpent = userRenovation.user.budget_spent - budgetDiff;
+
+      // Update user document
+      userRenovation.user.budget_current = parseInt(newBudgetCurrent);
+      userRenovation.user.budget_spent = parseInt(newBudgetSpent);
+      await userRenovation.user.save();
     }
 
     await userRenovation.save();
