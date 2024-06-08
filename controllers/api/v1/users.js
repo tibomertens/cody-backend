@@ -105,7 +105,7 @@ const confirmEmail = async (req, res) => {
 
     // Update the user's emailConfirmed status
     user.emailConfirmed = true;
-    user.confirmationToken = '';
+    user.confirmationToken = "";
     await user.save();
 
     res.json({
@@ -154,7 +154,7 @@ const deleteUser = async (req, res) => {
 
     // Find the user to be deleted
     let user = await User.findByIdAndDelete(id);
-    
+
     if (!user) {
       return res.json({
         status: "failed",
@@ -173,7 +173,9 @@ const deleteUser = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error", success: false });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", success: false });
   }
 };
 
@@ -319,7 +321,10 @@ const updateUser = async (req, res) => {
       }
 
       // Compare the old password provided with the existing password
-      const isMatch = await bcrypt.compare(req.body.old_password, user.password);
+      const isMatch = await bcrypt.compare(
+        req.body.old_password,
+        user.password
+      );
       if (!isMatch) {
         return res.json({
           success: false,

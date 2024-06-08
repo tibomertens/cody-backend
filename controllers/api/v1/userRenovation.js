@@ -368,8 +368,6 @@ const updateUserData = async (req, res) => {
     }
 
     if (userRenovation.status === "Actief") {
-
-
       // Calculate new budget values
       if (userRenovation.budget === null) {
         userRenovation.budget = 0;
@@ -385,13 +383,9 @@ const updateUserData = async (req, res) => {
       userRenovation.user.budget_spent = parseInt(newBudgetSpent);
       await userRenovation.user.save();
     } else if (userRenovation.status === "Voltooid") {
-
-
       const budgetDiff = budget_final - userRenovation.budget;
       const newBudgetCurrent = userRenovation.user.budget_current - budgetDiff;
       const newBudgetSpent = userRenovation.user.budget_spent + budgetDiff;
-
-
 
       userRenovation.budget_final = budget_final;
       userRenovation.amount_done = amount_total;
@@ -408,7 +402,7 @@ const updateUserData = async (req, res) => {
     res.json({
       message: "User-specific data updated successfully",
       data: userRenovation,
-      success: true
+      success: true,
     });
   } catch (error) {
     console.error(error);
@@ -547,7 +541,6 @@ const getAll = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 module.exports = {
   getUserRenovation,

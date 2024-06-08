@@ -15,7 +15,7 @@ const create = async (req, res) => {
       user,
       title,
       description,
-      date
+      date,
     });
 
     const savedTask = await newTask.save();
@@ -119,5 +119,5 @@ module.exports = {
   getAll,
   getByUserId,
   update,
-  remove
+  remove,
 };

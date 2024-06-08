@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 //require the renovations model
 const Renovation = require("../../../models/Renovation");
@@ -21,7 +21,7 @@ const create = async (req, res) => {
     grants,
     startup_info,
     type,
-    highest_cost
+    highest_cost,
   } = req.body;
 
   // Input validation
@@ -53,7 +53,7 @@ const create = async (req, res) => {
       grants,
       startup_info,
       type,
-      highest_cost
+      highest_cost,
     });
 
     // Save the renovation
@@ -252,7 +252,6 @@ const getByType = async (req, res) => {
   }
 };
 
-
 const getCompletedRenovationsByMonth = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -260,21 +259,23 @@ const getCompletedRenovationsByMonth = async (req, res) => {
     // Step 2: Query the database for completed renovations of the user
     const completedRenovations = await UserRenovation.find({
       userId: userId,
-      status: "Voltooid"
+      status: "Voltooid",
     });
-    if(!completedRenovations) {
-      return res.status(404).json({ error: 'User niet gevonden', success: false });
+    if (!completedRenovations) {
+      return res
+        .status(404)
+        .json({ error: "User niet gevonden", success: false });
     }
 
     // Step 3: Group renovations by month and count them
     const renovationsByMonth = {};
 
-    completedRenovations.forEach(renovation => {
+    completedRenovations.forEach((renovation) => {
       const endDate = new Date(renovation.endDate);
-      const month = ('0' + (endDate.getMonth() + 1)).slice(-2); // Get month and pad with leading zero
+      const month = ("0" + (endDate.getMonth() + 1)).slice(-2); // Get month and pad with leading zero
       const year = endDate.getFullYear();
       const monthYear = `${month}/${year}`;
-      
+
       if (!renovationsByMonth[monthYear]) {
         renovationsByMonth[monthYear] = 0;
       }
@@ -286,10 +287,14 @@ const getCompletedRenovationsByMonth = async (req, res) => {
       success: true,
       data: renovationsByMonth,
     });
-
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Er liep iets mis bij het ophalen van de renovaties.', success: false });
+    res
+      .status(500)
+      .json({
+        error: "Er liep iets mis bij het ophalen van de renovaties.",
+        success: false,
+      });
   }
 };
 
@@ -301,5 +306,5 @@ module.exports = {
   deleteById,
   updateById,
   getByType,
-  getCompletedRenovationsByMonth
+  getCompletedRenovationsByMonth,
 };
