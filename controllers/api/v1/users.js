@@ -111,6 +111,7 @@ const confirmEmail = async (req, res) => {
     res.json({
       message: "Email confirmed successfully",
       success: true,
+      user: user,
       token: jwtToken,
     });
   } catch (error) {
