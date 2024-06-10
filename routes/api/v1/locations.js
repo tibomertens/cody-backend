@@ -12,5 +12,6 @@ const auth = require("../../../middleware/auth/Auth");
 
 router.post("/", auth.verifyApiKey, locationController.createLocation);
 router.get("/", auth.verifyApiKey, locationController.getLocations);
+router.delete("/all", auth.verifyApiKey, locationController.deleteAll);
 
 module.exports = router;

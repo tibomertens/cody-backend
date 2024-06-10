@@ -31,6 +31,16 @@ const createLocation = async (req, res) => {
   }
 };
 
+const deleteAll = async (req, res) => {
+  try {
+    await Location.deleteMany({});
+    res.status(200).json({ message: "All locations have been deleted" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred while deleting locations" });
+  }
+};
+
 //get locations
 const getLocations = async (req, res) => {
   let locations = await Location.find();
@@ -44,4 +54,5 @@ const getLocations = async (req, res) => {
 module.exports = {
   createLocation,
   getLocations,
+  deleteAll,
 };
