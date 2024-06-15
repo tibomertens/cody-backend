@@ -68,7 +68,7 @@ const createUser = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL,
       to: newUser.email,
-      subject: "Account bevestigen",
+      subject: "Cody account bevestigen",
       text: `Klik op deze link om uw account te bevestigen: ${process.env.APP_URL}/confirm/${confirmationToken}`,
     };
 
@@ -304,7 +304,7 @@ const updateUser = async (req, res) => {
       const mailOptions = {
         from: process.env.EMAIL,
         to: req.body.email,
-        subject: "Nieuwe email bevestigen",
+        subject: "Cody nieuwe email bevestigen",
         text: `Klik op deze link om uw nieuwe email te bevestigen: ${process.env.APP_URL}/confirm/${confirmationToken}`,
       };
 
