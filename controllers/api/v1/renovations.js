@@ -255,6 +255,7 @@ const getByType = async (req, res) => {
 const getCompletedRenovationsByMonth = async (req, res) => {
   try {
     const userId = req.params.userId;
+    console.log(userId);
 
     // Step 2: Query the database for completed renovations of the user
     const completedRenovations = await UserRenovation.find({
