@@ -267,8 +267,12 @@ const getCompletedRenovationsByMonth = async (req, res) => {
         .json({ error: "User niet gevonden", success: false });
     }
 
+    console.log(completedRenovations);
+
     // Step 3: Group renovations by month and count them
     const renovationsByMonth = {};
+
+    console.log(renovationsByMonth);
 
     completedRenovations.forEach((renovation) => {
       const endDate = new Date(renovation.endDate);
@@ -282,6 +286,7 @@ const getCompletedRenovationsByMonth = async (req, res) => {
       renovationsByMonth[monthYear]++;
     });
 
+    console.log(renovationsByMonth);
     // Step 4: Return the results
     res.status(200).json({
       success: true,
