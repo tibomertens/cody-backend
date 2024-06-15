@@ -17,7 +17,7 @@ router.get("/:id", auth.verifyApiKey, renovationsController.getById);
 router.delete("/:id", auth.verifyApiKey, renovationsController.deleteById);
 router.put("/:id", auth.verifyApiKey, renovationsController.updateById);
 router.get("/type/:type", auth.verifyApiKey, renovationsController.getByType);
-router.get("/linegraph/:id", auth.verifyApiKey, renovationsController.getCompletedRenovationsByMonth);
+router.get("/linegraph/:userId", auth.verifyApiKey, renovationsController.getCompletedRenovationsByMonth);
 
 //export the router
 module.exports = router;

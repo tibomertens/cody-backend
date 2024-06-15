@@ -255,7 +255,6 @@ const getByType = async (req, res) => {
 const getCompletedRenovationsByMonth = async (req, res) => {
   try {
     const userId = req.params.userId;
-    console.log(userId);
 
     // Step 2: Query the database for completed renovations of the user
     const completedRenovations = await UserRenovation.find({
@@ -268,12 +267,8 @@ const getCompletedRenovationsByMonth = async (req, res) => {
         .json({ error: "User niet gevonden", success: false });
     }
 
-    console.log(completedRenovations);
-
     // Step 3: Group renovations by month and count them
     const renovationsByMonth = {};
-
-    console.log(renovationsByMonth);
 
     completedRenovations.forEach((renovation) => {
       const endDate = new Date(renovation.endDate);
